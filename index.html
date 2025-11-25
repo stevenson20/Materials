@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Steve's Lab Material Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation -->
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-mark">λ</span>
+        <div class="brand-text">
+          <div class="brand-title">Steve's Lab Hub</div>
+          <div class="brand-subtitle">AI • FSD • CN • Tinkering</div>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <button class="nav-link active" data-section-target="home">Home</button>
+        <button class="nav-link" data-section-target="subjects">
+          Subjects
+        </button>
+        <button class="nav-link" data-section-target="all-programs">
+          All Programs
+        </button>
+        <button class="nav-link" data-section-target="notes">Notes</button>
+      </nav>
+
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">
+        🌙
+      </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="layout">
+      <!-- HOME / HERO -->
+      <section id="home" class="section active">
+        <div class="hero">
+          <div class="hero-text">
+            <h1>Subject-wise Lab Programs in One Place</h1>
+            <p class="hero-subtitle">
+              Quickly view, copy, and run your college lab programs. All AI,
+              FSD, CN & Tinkering material organised cleanly—accessible from
+              anywhere.
+            </p>
+            <div class="hero-actions">
+              <button class="primary-btn" data-section-target="subjects">
+                Browse Subjects
+              </button>
+              <button class="secondary-btn" data-section-target="all-programs">
+                Search All Programs
+              </button>
+            </div>
+          </div>
+          <div class="hero-card">
+            <h2>About This Site</h2>
+            <p>
+              This is a personal lab material hub maintained by
+              <strong>Steve</strong>. All programs are grouped by subject with
+              clean code, aims, and a simple in-browser runner for HTML/CSS/JS
+              and JavaScript.
+            </p>
+            <ul class="hero-list">
+              <li>📂 Subject-wise program collection</li>
+              <li>📜 Copy-ready code with proper formatting</li>
+              <li>▶️ Run HTML/CSS/JS directly in the browser</li>
+              <li>🌓 Clean dark / light themes</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBJECTS SECTION -->
+      <section id="subjects" class="section">
+        <header class="section-header">
+          <div>
+            <h2>Subjects</h2>
+            <p class="muted">
+              Choose a lab to see all its programs and view source code.
+            </p>
+          </div>
+        </header>
+
+        <div id="subjectGrid" class="grid subjects-grid">
+          <!-- subject cards rendered by JS -->
+        </div>
+      </section>
+
+      <!-- SUBJECT DETAIL + PROGRAMS -->
+      <section id="subject-detail" class="section">
+        <header class="section-header">
+          <div>
+            <h2 id="subjectTitle">Subject Title</h2>
+            <p id="subjectDescription" class="muted">
+              Subject description will appear here.
+            </p>
+          </div>
+        </header>
+
+        <!-- Filters -->
+        <div class="filters-row">
+          <div class="field">
+            <label for="tagFilter">Filter by tag</label>
+            <select id="tagFilter">
+              <option value="">All tags</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="languageFilter">Filter by language</label>
+            <select id="languageFilter">
+              <option value="">All languages</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Program list in this subject -->
+        <div id="programList" class="grid program-grid">
+          <!-- program cards rendered by JS -->
+        </div>
+
+        <!-- Program Detail Panel -->
+        <section id="programDetail" class="program-detail hidden">
+          <header class="program-detail-header">
+            <div>
+              <h3 id="programDetailTitle">Program Title</h3>
+              <p id="programDetailMeta" class="muted small-text">
+                Subject • Language
+              </p>
+            </div>
+            <span id="saveStatus" class="muted small-text"></span>
+          </header>
+
+          <article class="program-detail-body">
+            <h4>Problem / Aim</h4>
+            <p id="programDetailProblem" class="problem-text">
+              Aim of the program will show here.
+            </p>
+
+            <div class="code-layout">
+              <!-- Provided Code -->
+              <div class="code-pane">
+                <div class="pane-header">
+                  <span>Provided Code</span>
+                  <div class="pane-actions">
+                    <button id="copyCodeBtn" class="ghost-btn small">
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <pre id="programCode" class="code-block"></pre>
+              </div>
+
+              <!-- User Editable Code -->
+              <div class="code-pane">
+                <div class="pane-header">
+                  <span>Your Code (Editable)</span>
+                  <div class="pane-actions">
+                    <button id="saveUserCodeBtn" class="secondary-btn small">
+                      Save
+                    </button>
+                    <button id="copyUserCodeBtn" class="ghost-btn small">
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  id="userCodeInput"
+                  class="code-input"
+                  spellcheck="false"
+                  placeholder="Edit or paste your own version of the code here. Saved only in this browser."
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Run Output -->
+            <div class="run-panel">
+              <div class="run-header">
+                <button id="runCodeBtn" class="primary-btn small">
+                  ▶ Run Code
+                </button>
+                <span id="runOutputNote" class="muted small-text">
+                  JavaScript &amp; HTML/CSS/JS snippets run inside the browser.
+                </span>
+              </div>
+
+              <pre id="runOutput" class="run-output"></pre>
+              <iframe id="htmlRunner" class="run-html-frame hidden"></iframe>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <!-- ALL PROGRAMS + SEARCH -->
+      <section id="all-programs" class="section">
+        <header class="section-header">
+          <div>
+            <h2>All Programs</h2>
+            <p class="muted">
+              Search across all subjects by title, tag, language or subject
+              name.
+            </p>
+          </div>
+        </header>
+
+        <form id="searchForm" class="search-bar">
+          <input
+            id="globalSearchInput"
+            type="search"
+            placeholder="Search e.g. BFS, stacks, HTML form, Python..."
+          />
+          <button type="submit" class="primary-btn small">Search</button>
+        </form>
+        <p id="searchSummary" class="muted small-text"></p>
+
+        <div id="allProgramsList" class="grid program-grid">
+          <!-- all programs list rendered by JS -->
+        </div>
+      </section>
+
+      <!-- NOTES / MATERIAL LINKS -->
+      <section id="notes" class="section">
+        <header class="section-header">
+          <div>
+            <h2>Notes & Materials</h2>
+            <p class="muted">
+              Attach PDFs, reference links, and any extra material here.
+            </p>
+          </div>
+        </header>
+
+        <div id="notesList" class="grid notes-grid">
+          <!-- notes cards rendered by JS -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span class="muted small-text">
+        © <span id="year"></span> Steve's Lab Hub • Built for college labs
+      </span>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

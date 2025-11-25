@@ -1,0 +1,215 @@
+{
+  "subjects": [
+    {
+      "id": "ai-lab",
+      "name": "Artificial Intelligence Lab",
+      "short": "AI search, heuristics, basic Python/JavaScript ML experiments.",
+      "programs": [
+        {
+          "id": "ai-p1-bfs",
+          "title": "Program 1: Breadth First Search (BFS)",
+          "language": "Python",
+          "tags": ["bfs", "graph", "search"],
+          "problem": "Aim: Write a Program to Implement Breadth First Search using Python.",
+          "code": "from collections import deque\n\n\ndef bfs(graph, start):\n    visited = set()\n    queue = deque()\n    order = []\n    if start not in graph:\n        return order\n    queue.append(start)\n    visited.add(start)\n    while queue:\n        v = queue.popleft()\n        order.append(v)\n        for n in graph.get(v, []):\n            if n not in visited:\n                visited.add(n)\n                queue.append(n)\n    return order\n\n\ngraph = {\n    'A': ['B', 'C'],\n    'B': ['D', 'E'],\n    'C': ['F'],\n    'D': [],\n    'E': ['F'],\n    'F': []\n}\n\nstart_vertex = 'A'\nresult = bfs(graph, start_vertex)\nprint('BFS order:', result)\n"
+        },
+        {
+          "id": "ai-p2-best-first",
+          "title": "Program 2: Best First Search",
+          "language": "Python",
+          "tags": ["best-first", "heuristic", "graph"],
+          "problem": "Aim: Write a program to implement Best First Searching Algorithm.",
+          "code": "import heapq\n\n\ndef best_first_search(graph, h, start, goal):\n    visited = set()\n    order = []\n    if start not in graph:\n        return order\n    pq = []\n    heapq.heappush(pq, (h.get(start, 0), start))\n    while pq:\n        _, node = heapq.heappop(pq)\n        if node in visited:\n            continue\n        visited.add(node)\n        order.append(node)\n        if node == goal:\n            return order\n        for neigh in graph.get(node, []):\n            if neigh not in visited:\n                heapq.heappush(pq, (h.get(neigh, 0), neigh))\n    return order\n\n\ngraph = {\n    'S': ['A', 'B'],\n    'A': ['C', 'D'],\n    'B': ['E', 'F'],\n    'C': [],\n    'D': [],\n    'E': [],\n    'F': []\n}\n\nh = {\n    'S': 5,\n    'A': 4,\n    'B': 3,\n    'C': 7,\n    'D': 2,\n    'E': 4,\n    'F': 1\n}\n\npath = best_first_search(graph, h, 'S', 'F')\nprint('Best First Search order:', path)\n"
+        },
+        {
+          "id": "ai-p3-dfs",
+          "title": "Program 3: Depth First Search (DFS)",
+          "language": "Python",
+          "tags": ["dfs", "graph", "search"],
+          "problem": "Aim: Write a Program to Implement Depth First Search using Python.",
+          "code": "def dfs_recursive(graph, start, visited=None, order=None):\n    if visited is None:\n        visited = set()\n    if order is None:\n        order = []\n    visited.add(start)\n    order.append(start)\n    for n in graph.get(start, []):\n        if n not in visited:\n            dfs_recursive(graph, n, visited, order)\n    return order\n\n\ndef dfs_iterative(graph, start):\n    visited = set()\n    stack = []\n    order = []\n    if start not in graph:\n        return order\n    stack.append(start)\n    while stack:\n        v = stack.pop()\n        if v not in visited:\n            visited.add(v)\n            order.append(v)\n            for n in reversed(graph.get(v, [])):\n                if n not in visited:\n                    stack.append(n)\n    return order\n\n\ngraph = {\n    'A': ['B', 'C'],\n    'B': ['D', 'E'],\n    'C': ['F'],\n    'D': [],\n    'E': ['F'],\n    'F': []\n}\n\nstart_vertex = 'A'\nprint('Recursive DFS order:', dfs_recursive(graph, start_vertex))\nprint('Iterative DFS order:', dfs_iterative(graph, start_vertex))\n"
+        },
+        {
+          "id": "ai-p4-heuristic-search",
+          "title": "Program 4: Heuristic (Hill Climbing) Search",
+          "language": "Python",
+          "tags": ["heuristic", "hill-climbing", "search"],
+          "problem": "Aim: Write a program to implement the Heuristic Search using hill climbing.",
+          "code": "def hill_climbing(graph, h, start, goal):\n    current = start\n    path = [current]\n    while True:\n        neighbors = graph.get(current, [])\n        if not neighbors:\n            break\n        best = current\n        best_h = h.get(current, 0)\n        for n in neighbors:\n            if h.get(n, 0) < best_h:\n                best_h = h[n]\n                best = n\n        if best == current:\n            break\n        current = best\n        path.append(current)\n        if current == goal:\n            break\n    return path\n\n\ngraph = {\n    'S': ['A', 'B'],\n    'A': ['C', 'D'],\n    'B': ['E'],\n    'C': [],\n    'D': [],\n    'E': []\n}\n\nh = {\n    'S': 6,\n    'A': 3,\n    'B': 4,\n    'C': 1,\n    'D': 2,\n    'E': 0\n}\n\npath = hill_climbing(graph, h, 'S', 'E')\nprint('Hill climbing path:', path)\n"
+        },
+        {
+          "id": "ai-p5-astar-ao",
+          "title": "Program 5: A* and AO* Algorithms",
+          "language": "Python",
+          "tags": ["a*", "ao*", "heuristic", "graph"],
+          "problem": "Aim: Write a python program to implement A* and AO* algorithm to find the shortest path.",
+          "code": "import heapq\n\n\ndef astar(graph, h, start, goal):\n    open_set = [(h.get(start, 0), 0, start, [start])]\n    closed = set()\n    while open_set:\n        f, g, node, path = heapq.heappop(open_set)\n        if node in closed:\n            continue\n        if node == goal:\n            return path, g\n        closed.add(node)\n        for neigh, cost in graph.get(node, []):\n            if neigh not in closed:\n                g2 = g + cost\n                f2 = g2 + h.get(neigh, 0)\n                heapq.heappush(open_set, (f2, g2, neigh, path + [neigh]))\n    return None, None\n\n\ndef aostar(graph, h, start):\n    solved = set()\n    costs = dict(h)\n    parents = {}\n\n    def best_child(n):\n        best_group = None\n        best_cost = float('inf')\n        for group in graph.get(n, []):\n            total = 0\n            for c in group:\n                total += costs.get(c, float('inf'))\n            if total < best_cost:\n                best_cost = total\n                best_group = group\n        return best_group, best_cost\n\n    def ao(n):\n        if n in solved:\n            return costs[n]\n        if n not in graph:\n            solved.add(n)\n            return costs[n]\n        group, c = best_child(n)\n        costs[n] = c\n        parents[n] = group\n        for child in group:\n            ao(child)\n        solved.add(n)\n        return costs[n]\n\n    ao(start)\n    path = [start]\n    cur = start\n    while cur in parents:\n        group = parents[cur]\n        cur = group[0]\n        path.append(cur)\n    return path, costs[start]\n\n\n# Example graphs for A* and AO*\nastar_graph = {\n    'S': [('A', 1), ('B', 4)],\n    'A': [('C', 2), ('D', 5)],\n    'B': [('D', 1)],\n    'C': [('G', 5)],\n    'D': [('G', 2)],\n    'G': []\n}\n\nh1 = {\n    'S': 7,\n    'A': 6,\n    'B': 2,\n    'C': 4,\n    'D': 2,\n    'G': 0\n}\n\npath1, cost1 = astar(astar_graph, h1, 'S', 'G')\nprint('A* path:', path1, 'cost:', cost1)\n\nao_graph = {\n    'S': [['A', 'B'], ['C']],\n    'A': [['D']],\n    'B': [['G']],\n    'C': [['G']],\n    'D': [['G']]\n}\n\nh2 = {\n    'S': 5,\n    'A': 3,\n    'B': 2,\n    'C': 4,\n    'D': 2,\n    'G': 0\n}\n\npath2, cost2 = aostar(ao_graph, h2, 'S')\nprint('AO* path:', path2, 'cost:', cost2)\n"
+        },
+        {
+          "id": "ai-p6-water-jug",
+          "title": "Program 6: Water Jug Problem",
+          "language": "Python",
+          "tags": ["water-jug", "state-space", "search"],
+          "problem": "Aim: Write a Program to Implement Water-Jug problem using Python.",
+          "code": "from collections import deque\n\n\nclass JugState:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def as_tuple(self):\n        return self.x, self.y\n\n    def __repr__(self):\n        return '(' + str(self.x) + ', ' + str(self.y) + ')'\n\n\ndef water_jug(cap1, cap2, target):\n    start = JugState(0, 0)\n    queue = deque([start])\n    parent = {start.as_tuple(): None}\n    while queue:\n        cur = queue.popleft()\n        if cur.x == target or cur.y == target:\n            path = []\n            t = cur.as_tuple()\n            while t is not None:\n                path.append(JugState(t[0], t[1]))\n                t = parent[t]\n            path.reverse()\n            return path\n        x, y = cur.x, cur.y\n        next_states = []\n        next_states.append(JugState(cap1, y))\n        next_states.append(JugState(x, cap2))\n        next_states.append(JugState(0, y))\n        next_states.append(JugState(x, 0))\n        pour = min(x, cap2 - y)\n        next_states.append(JugState(x - pour, y + pour))\n        pour = min(y, cap1 - x)\n        next_states.append(JugState(x + pour, y - pour))\n        for ns in next_states:\n            t = ns.as_tuple()\n            if t not in parent:\n                parent[t] = cur.as_tuple()\n                queue.append(ns)\n    return None\n\n\ncap1 = 4\ncap2 = 3\ntarget = 2\npath = water_jug(cap1, cap2, target)\nif path is None:\n    print('No solution')\nelse:\n    print('Water jug path:')\n    for state in path:\n        print(state)\n"
+        },
+        {
+          "id": "ai-p7-alpha-beta",
+          "title": "Program 7: Alpha-Beta Pruning",
+          "language": "Python",
+          "tags": ["alpha-beta", "minimax", "game-tree"],
+          "problem": "Aim: Write a Program to Implement Alpha-Beta Pruning using Python.",
+          "code": "def alphabeta(values, depth, index, maximizing, alpha, beta):\n    if depth == 0 or index >= len(values):\n        return values[index]\n    if maximizing:\n        best = float('-inf')\n        for i in range(2):\n            val = alphabeta(values, depth - 1, index * 2 + i, False, alpha, beta)\n            best = max(best, val)\n            alpha = max(alpha, best)\n            if beta <= alpha:\n                break\n        return best\n    else:\n        best = float('inf')\n        for i in range(2):\n            val = alphabeta(values, depth - 1, index * 2 + i, True, alpha, beta)\n            best = min(best, val)\n            beta = min(beta, best)\n            if beta <= alpha:\n                break\n        return best\n\n\nleaf_values = [3, 5, 6, 9, 1, 2, 0, -1]\nresult = alphabeta(leaf_values, 3, 0, True, float('-inf'), float('inf'))\nprint('Leaf values:', leaf_values)\nprint('Alpha-Beta result:', result)\n"
+        },
+        {
+          "id": "ai-p8-8queens",
+          "title": "Program 8: 8-Queens Problem",
+          "language": "Python",
+          "tags": ["8-queens", "backtracking"],
+          "problem": "Aim: Write a Program to implement 8-Queens Problem using Python.",
+          "code": "def is_safe(board, row, col):\n    for c in range(col):\n        if board[c] == row:\n            return False\n        if abs(board[c] - row) == abs(c - col):\n            return False\n    return True\n\n\ndef solve_n_queens(n):\n    board = [-1] * n\n    solutions = []\n\n    def backtrack(col):\n        if col == n:\n            solutions.append(board.copy())\n            return\n        for row in range(n):\n            if is_safe(board, row, col):\n                board[col] = row\n                backtrack(col + 1)\n                board[col] = -1\n\n    backtrack(0)\n    return solutions\n\n\nn = 8\nsolutions = solve_n_queens(n)\nprint('Number of solutions for', n, 'queens:', len(solutions))\nif solutions:\n    print('One solution (row positions by column):', solutions[0])\n"
+        },
+        {
+          "id": "ai-p9-default-meeting",
+          "title": "Program 9: Meeting Scheduling with Default Reasoning",
+          "language": "Python",
+          "tags": ["default-reasoning", "scheduling"],
+          "problem": "Aim: Write a program to schedule a meeting among 5 busy people using Default Reasoning so that the output gives the time, place and day of the meeting.",
+          "code": "people = ['P1', 'P2', 'P3', 'P4', 'P5']\n\nbusy = {\n    'P1': {('Mon', '10-11'), ('Tue', '11-12')},\n    'P2': {('Mon', '10-11'), ('Mon', '12-1')},\n    'P3': {('Tue', '9-10'), ('Wed', '3-4')},\n    'P4': {('Mon', '2-3'), ('Tue', '11-12')},\n    'P5': {('Wed', '10-11'), ('Mon', '10-11')}\n}\n\nslots = [\n    ('Mon', '9-10'),\n    ('Mon', '10-11'),\n    ('Mon', '11-12'),\n    ('Mon', '12-1'),\n    ('Tue', '11-12'),\n    ('Wed', '10-11')\n]\n\nplaces = ['Conference Room 1', 'Online Meet']\n\n\ndef find_slot():\n    for day, time in slots:\n        ok = True\n        for p in people:\n            if (day, time) in busy.get(p, set()):\n                ok = False\n                break\n        if ok:\n            return day, time\n    return None\n\n\ndef default_place():\n    return places[0]\n\n\nresult = find_slot()\nif result is None:\n    print('No common free slot found')\nelse:\n    d, t = result\n    place = default_place()\n    print('Meeting scheduled on', d, 'at', t, 'in', place)\n"
+        },
+        {
+          "id": "ai-p10-unification",
+          "title": "Program 10: Unification Algorithm",
+          "language": "Python",
+          "tags": ["unification", "logic"],
+          "problem": "Aim: Write a program to implement the Unification algorithm.",
+          "code": "def is_variable(x):\n    return isinstance(x, str) and x[0].islower()\n\n\ndef substitute(term, subs):\n    if isinstance(term, str):\n        return subs.get(term, term)\n    functor, arg = term\n    return (functor, substitute(arg, subs))\n\n\ndef occurs_check(var, term, subs):\n    term = substitute(term, subs)\n    if var == term:\n        return True\n    if isinstance(term, tuple):\n        return occurs_check(var, term[1], subs)\n    return False\n\n\ndef unify(x, y, subs=None):\n    if subs is None:\n        subs = {}\n    x = substitute(x, subs)\n    y = substitute(y, subs)\n    if x == y:\n        return subs\n    if is_variable(x):\n        if occurs_check(x, y, subs):\n            return None\n        subs[x] = y\n        return subs\n    if is_variable(y):\n        if occurs_check(y, x, subs):\n            return None\n        subs[y] = x\n        return subs\n    if isinstance(x, tuple) and isinstance(y, tuple):\n        fx, ax = x\n        fy, ay = y\n        if fx != fy:\n            return None\n        return unify(ax, ay, subs)\n    return None\n\n\nx = ('likes', 'x')\ny = ('likes', 'IceCream')\nresult = unify(x, y)\nprint('Unifier for', x, 'and', y, 'is:', result)\n"
+        },
+        {
+          "id": "ai-p11-kb-system",
+          "title": "Program 11: Simple Knowledge Base System",
+          "language": "Python",
+          "tags": ["knowledge-base", "rules", "inference"],
+          "problem": "Aim: Develop a knowledge base system consisting of facts and rules about some specialized knowledge domain.",
+          "code": "facts = set()\nrules = []\n\n\ndef add_fact(f):\n    facts.add(f)\n\n\ndef add_rule(conditions, conclusion):\n    rules.append((set(conditions), conclusion))\n\n\ndef infer():\n    changed = True\n    while changed:\n        changed = False\n        for cond, conc in rules:\n            if cond.issubset(facts) and conc not in facts:\n                facts.add(conc)\n                changed = True\n\n\nadd_fact(('symptom', 'fever'))\nadd_fact(('symptom', 'cough'))\nadd_fact(('age', 'adult'))\n\nadd_rule([('symptom', 'fever'), ('symptom', 'cough')], ('disease', 'flu'))\nadd_rule([('disease', 'flu'), ('age', 'adult')], ('treatment', 'rest_and_fluids'))\n\ninfer()\n\nprint('Facts in knowledge base:')\nfor f in sorted(facts):\n    print(f)\n"
+        },
+        {
+          "id": "ai-p12-8puzzle",
+          "title": "Program 12: 8-Puzzle Using Different Heuristics",
+          "language": "Python",
+          "tags": ["8-puzzle", "a*", "heuristic"],
+          "problem": "Aim: Write a program to implement 8 puzzle problem using different heuristics.",
+          "code": "import heapq\n\ngoal = (1, 2, 3, 4, 5, 6, 7, 8, 0)\n\nmoves = {\n    0: [1, 3],\n    1: [0, 2, 4],\n    2: [1, 5],\n    3: [0, 4, 6],\n    4: [1, 3, 5, 7],\n    5: [2, 4, 8],\n    6: [3, 7],\n    7: [4, 6, 8],\n    8: [5, 7]\n}\n\n\ndef misplaced(state):\n    c = 0\n    for i, v in enumerate(state):\n        if v != 0 and v != goal[i]:\n            c += 1\n    return c\n\n\ndef manhattan(state):\n    d = 0\n    for i, v in enumerate(state):\n        if v == 0:\n            continue\n        gi = goal.index(v)\n        d += abs(i // 3 - gi // 3) + abs(i % 3 - gi % 3)\n    return d\n\n\ndef neighbors(state):\n    z = state.index(0)\n    res = []\n    for m in moves[z]:\n        s = list(state)\n        s[z], s[m] = s[m], s[z]\n        res.append(tuple(s))\n    return res\n\n\ndef astar(start, heur):\n    open_set = [(heur(start), 0, start, [start])]\n    closed = set()\n    while open_set:\n        f, g, state, path = heapq.heappop(open_set)\n        if state in closed:\n            continue\n        if state == goal:\n            return path, g\n        closed.add(state)\n        for n in neighbors(state):\n            if n not in closed:\n                g2 = g + 1\n                f2 = g2 + heur(n)\n                heapq.heappush(open_set, (f2, g2, n, path + [n]))\n    return None, None\n\n\nstart = (1, 2, 3, 4, 0, 6, 7, 5, 8)\npath1, cost1 = astar(start, misplaced)\nprint('Misplaced tiles heuristic: cost', cost1, 'steps', len(path1) - 1)\npath2, cost2 = astar(start, manhattan)\nprint('Manhattan distance heuristic: cost', cost2, 'steps', len(path2) - 1)\n"
+        }
+      ]
+    },
+    {
+      "id": "fsd-lab-2",
+      "name": "Full Stack Development Lab II",
+      "short": "Frontend, backend, APIs and full stack mini projects.",
+      "programs": [
+        {
+          "id": "fsd-p1-math-tool",
+          "title": "Program 1: Simple Math Tool",
+          "language": "HTML/CSS/JS",
+          "tags": ["calculator", "arithmetic", "basic-js"],
+          "problem": "Aim: To design and develop a simple web application that performs basic arithmetic and number checks.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Math Tool</title>\n<style>\nbody { font-family: Arial; background:#f0f0f0; padding:20px; }\n.container { background:white; padding:20px; border-radius:10px; width:320px; margin:auto; }\ninput,button { width:100%; padding:10px; margin:6px 0; }\n.result { padding:10px; background:#eee; margin-top:10px; font-weight:bold; }\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Simple Math Tool</h2>\n<input id='n1' type='number' placeholder='Enter first number'>\n<input id='n2' type='number' placeholder='Enter second number'>\n<button onclick='calc(\"+\")'>Add</button>\n<button onclick='calc(\"-\")'>Subtract</button>\n<button onclick='calc(\"*\")'>Multiply</button>\n<button onclick='calc(\"/\")'>Divide</button>\n<div id='res' class='result'></div>\n</div>\n<script>\nfunction calc(op){\n let a=parseFloat(document.getElementById('n1').value);\n let b=parseFloat(document.getElementById('n2').value);\n if(isNaN(a) || isNaN(b)){ document.getElementById('res').innerText='Enter valid numbers'; return; }\n let r=0;\n if(op=='+') r=a+b;\n if(op=='-') r=a-b;\n if(op=='*') r=a*b;\n if(op=='/'){\n   if(b==0){ document.getElementById('res').innerText='Cannot divide by 0'; return; }\n   r=a/b;\n }\n document.getElementById('res').innerText='Result: '+r;\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p2-js-number-calculator",
+          "title": "Program 2: JS Number Calculator",
+          "language": "HTML/CSS/JS",
+          "tags": ["calculator", "js-functions"],
+          "problem": "Aim: To design a number-based calculator in JS using functions.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>JS Number Calculator</title>\n<style>\nbody{font-family:Arial;background:#eef;padding:20px;}\n.container{background:#fff;padding:20px;width:330px;margin:auto;border-radius:10px;}\nbutton,input{width:100%;padding:10px;margin:6px 0;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>JS Number Calculator</h2>\n<input id='a' placeholder='Enter number'>\n<input id='b' placeholder='Enter number'>\n<button onclick='run(\"+\")'>Add</button>\n<button onclick='run(\"-\")'>Subtract</button>\n<button onclick='run(\"*\")'>Multiply</button>\n<button onclick='run(\"/\")'>Divide</button>\n<div id='out'></div>\n</div>\n<script>\nfunction get(id){return parseFloat(document.getElementById(id).value);}\nfunction run(op){\n let x=get('a'), y=get('b');\n if(isNaN(x)||isNaN(y)){document.getElementById('out').innerText='Invalid';return;}\n if(op=='/' && y==0){document.getElementById('out').innerText='No division by 0';return;}\n let r=eval(x+op+y);\n document.getElementById('out').innerText='Result: '+r;\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p3-dell-availability",
+          "title": "Program 3: Check Product Availability (Dell Store)",
+          "language": "HTML/CSS/JS",
+          "tags": ["inventory", "search"],
+          "problem": "Aim: To check availability of a Dell product using JS arrays.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Dell Availability</title>\n<style>\nbody{font-family:Arial;background:#fafafa;padding:20px;}\n.container{background:white;padding:20px;width:350px;margin:auto;border-radius:10px;}\n#result{padding:10px;margin-top:10px;background:#eee;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Dell Product Availability</h2>\n<input id='p' placeholder='Enter product name'>\n<button onclick='check()'>Check</button>\n<div id='result'></div>\n</div>\n<script>\nlet items=[\"Laptop\",\"Mouse\",\"Keyboard\",\"Monitor\",\"Charger\"];\nfunction check(){\n let x=document.getElementById('p').value.toLowerCase();\n let found=items.some(i=>i.toLowerCase()==x);\n document.getElementById('result').innerText = found?'Available':'Not Available';\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p4-dell-add-product",
+          "title": "Program 4: Add Product to Inventory",
+          "language": "HTML/CSS/JS",
+          "tags": ["inventory", "array-push"],
+          "problem": "Aim: To add a new product to Dell inventory using JS arrays.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Add Product</title>\n<style>\nbody{font-family:Arial;background:#eef;padding:20px;}\n.container{background:white;padding:20px;width:330px;margin:auto;border-radius:10px;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Add Dell Product</h2>\n<input id='newP' placeholder='Enter product name'>\n<button onclick='add()'>Add</button>\n<div id='msg'></div>\n</div>\n<script>\nlet inv=[\"Laptop\",\"Mouse\",\"Keyboard\"];\nfunction add(){\n let p=document.getElementById('newP').value;\n inv.push(p);\n document.getElementById('msg').innerText='Added: '+p+' | Total: '+inv.length;\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p5-dell-remove-product",
+          "title": "Program 5: Remove Product from Inventory",
+          "language": "HTML/CSS/JS",
+          "tags": ["inventory", "remove"],
+          "problem": "Aim: To remove a product from Dell inventory using JS arrays.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Remove Product</title>\n<style>\nbody{font-family:Arial;background:#fff3;padding:20px;}\n.container{background:white;padding:20px;width:330px;margin:auto;border-radius:10px;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Remove Product</h2>\n<input id='r' placeholder='Product to remove'>\n<button onclick='rem()'>Remove</button>\n<div id='out'></div>\n</div>\n<script>\nlet stock=[\"Laptop\",\"Mouse\",\"Keyboard\",\"Charger\"];\nfunction rem(){\n let x=document.getElementById('r').value;\n let i=stock.indexOf(x);\n if(i>-1){stock.splice(i,1);document.getElementById('out').innerText='Removed '+x;} else {\n document.getElementById('out').innerText='Not found'; }\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p6-dell-inventory-objects",
+          "title": "Program 6: Inventory System Using Objects",
+          "language": "HTML/CSS/JS",
+          "tags": ["objects", "inventory"],
+          "problem": "Aim: To manage Dell inventory using JS objects.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Dell Inventory Objects</title>\n<style>\nbody{font-family:Arial;background:#eef;padding:20px;}\n.container{background:white;width:360px;padding:20px;margin:auto;border-radius:10px;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Dell Inventory (Objects)</h2>\n<button onclick='show()'>Show Inventory</button>\n<pre id='data'></pre>\n</div>\n<script>\nlet inventory={ Laptop:50, Mouse:120, Monitor:30, Keyboard:60 };\nfunction show(){ document.getElementById('data').innerText=JSON.stringify(inventory,null,2); }\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p7-weather-report",
+          "title": "Program 7: Weather Report Application",
+          "language": "HTML/CSS/JS",
+          "tags": ["weather", "search"],
+          "problem": "Aim: To design a weather report application using JS objects.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Weather Report</title>\n<style>\nbody{font-family:Arial;background:#def;padding:20px;}\n.container{background:white;padding:20px;border-radius:10px;width:350px;margin:auto;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Weather Report</h2>\n<input id='city' placeholder='Enter city'>\n<button onclick='getW()'>Get Weather</button>\n<div id='w'></div>\n</div>\n<script>\nlet data={\n nellore:{temp:'32°C',cond:'Sunny'},\n chennai:{temp:'35°C',cond:'Humid'},\n bangalore:{temp:'24°C',cond:'Cool'}\n};\nfunction getW(){\n let c=document.getElementById('city').value.toLowerCase();\n document.getElementById('w').innerText = data[c] ? 'Temp: '+data[c].temp+' | '+data[c].cond : 'No Data';\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p8-travel-advisory",
+          "title": "Program 8: Travel Advisory Application",
+          "language": "HTML/CSS/JS",
+          "tags": ["advisory", "weather"],
+          "problem": "Aim: To develop a weather-based travel advisory system.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Travel Advisory</title>\n<style>\nbody{font-family:Arial;background:#222;color:white;padding:20px;}\n.container{background:#111;padding:20px;border-radius:10px;width:350px;margin:auto;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Travel Advisory</h2>\n<select id='c'>\n<option>nellore</option><option>chennai</option><option>bangalore</option>\n</select>\n<select id='s'>\n<option>summer</option><option>rainy</option><option>winter</option>\n</select>\n<button onclick='adv()'>Get Advisory</button>\n<div id='o'></div>\n</div>\n<script>\nlet info={\n nellore:{summer:'Very hot',rainy:'Heavy rains',winter:'Cool'},\n chennai:{summer:'Extreme heat',rainy:'Flood risk',winter:'Normal'},\n bangalore:{summer:'Pleasant',rainy:'Showers',winter:'Cold'}\n};\nfunction adv(){\n let city=document.getElementById('c').value;\n let season=document.getElementById('s').value;\n document.getElementById('o').innerText = info[city][season];\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p9-smart-nbkrist-enrollment",
+          "title": "Program 9: SMART NBKRIST Course Enrollment",
+          "language": "HTML/CSS/JS",
+          "tags": ["forms", "validation"],
+          "problem": "Aim: To develop a student enrollment form with JS validation.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>SMART NBKRIST Enrollment</title>\n<style>\nbody{font-family:Arial;background:#f4f4f4;padding:20px;}\n.container{background:white;padding:20px;border-radius:10px;width:350px;margin:auto;}\ninput,select,button{width:100%;padding:10px;margin:6px 0;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Course Enrollment</h2>\n<input id='name' placeholder='Student Name'>\n<input id='reg' placeholder='Register Number'>\n<select id='course'>\n<option>Python</option><option>Full Stack</option><option>Data Science</option>\n</select>\n<button onclick='sub()'>Submit</button>\n<div id='r'></div>\n</div>\n<script>\nfunction sub(){\n let n=document.getElementById('name').value;\n let r=document.getElementById('reg').value;\n let c=document.getElementById('course').value;\n document.getElementById('r').innerText = (!n||!r)?'Fill all fields':'Enrolled in '+c;\n}\n</script>\n</body>\n</html>"
+        },
+
+        {
+          "id": "fsd-p10-student-profile-system",
+          "title": "Program 10: Student Profile System",
+          "language": "HTML/CSS/JS",
+          "tags": ["tables", "objects", "profiles"],
+          "problem": "Aim: To store and display student profiles using arrays of objects.",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<title>Student Profile System</title>\n<style>\nbody{font-family:Arial;background:#ddd;padding:20px;}\n.container{background:white;padding:20px;width:400px;margin:auto;border-radius:10px;}\ninput,button{width:100%;padding:10px;margin:5px 0;}\n table{width:100%;border-collapse:collapse;margin-top:10px;} td,th{border:1px solid #666;padding:6px;}\n</style>\n</head>\n<body>\n<div class='container'>\n<h2>Student Profiles</h2>\n<input id='n' placeholder='Name'>\n<input id='r' placeholder='Reg No'>\n<input id='b' placeholder='Branch'>\n<input id='y' placeholder='Year'>\n<button onclick='add()'>Add</button>\n<table>\n<thead><tr><th>Name</th><th>Reg</th><th>Branch</th><th>Year</th></tr></thead>\n<tbody id='t'></tbody>\n</table>\n</div>\n<script>\nlet arr=[];\nfunction add(){\n let o={name:n.value,reg:r.value,branch:b.value,year:y.value};\n arr.push(o);\n let rows='';\n arr.forEach(s=>{ rows+=`<tr><td>${s.name}</td><td>${s.reg}</td><td>${s.branch}</td><td>${s.year}</td></tr>`; });\n document.getElementById('t').innerHTML=rows;\n}\n</script>\n</body>\n</html>"
+        }
+      ]
+    },
+    {
+      "id": "cn-ip-lab",
+      "name": "Computer Networks and Internet Protocols Lab",
+      "short": "Socket programming, protocols, simulation programs.",
+      "programs": []
+    },
+    {
+      "id": "tinkering-lab",
+      "name": "Tinkering Lab",
+      "short": "Hardware, IoT, experiments and prototypes.",
+      "programs": []
+    }
+  ]
+}
