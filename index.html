@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Top Navigation -->
     <header class="top-bar">
       <div class="brand">
         <span class="brand-mark">λ</span>
@@ -33,17 +32,14 @@
       </button>
     </header>
 
-    <!-- Main Content -->
     <main class="layout">
-      <!-- HOME / HERO -->
       <section id="home" class="section active">
         <div class="hero">
           <div class="hero-text">
             <h1>Subject-wise Lab Programs in One Place</h1>
             <p class="hero-subtitle">
               Quickly view, copy, and run your college lab programs. All AI,
-              FSD, CN & Tinkering material organised cleanly—accessible from
-              anywhere.
+              FSD, CN & Tinkering material organised cleanly.
             </p>
             <div class="hero-actions">
               <button class="primary-btn" data-section-target="subjects">
@@ -58,9 +54,7 @@
             <h2>About This Site</h2>
             <p>
               This is a personal lab material hub maintained by
-              <strong>Steve</strong>. All programs are grouped by subject with
-              clean code, aims, and a simple in-browser runner for HTML/CSS/JS
-              and JavaScript.
+              <strong>Steve</strong>.
             </p>
             <ul class="hero-list">
               <li>📂 Subject-wise program collection</li>
@@ -72,35 +66,29 @@
         </div>
       </section>
 
-      <!-- SUBJECTS SECTION -->
       <section id="subjects" class="section">
         <header class="section-header">
           <div>
             <h2>Subjects</h2>
-            <p class="muted">
-              Choose a lab to see all its programs and view source code.
-            </p>
+            <p class="muted">Choose a lab to see all its programs.</p>
           </div>
         </header>
 
-        <div id="subjectGrid" class="grid subjects-grid">
-          <!-- subject cards rendered by JS -->
-        </div>
+        <div id="subjectGrid" class="grid subjects-grid"></div>
       </section>
 
-      <!-- SUBJECT DETAIL + PROGRAMS -->
       <section id="subject-detail" class="section">
-        <header class="section-header">
-          <div>
-            <h2 id="subjectTitle">Subject Title</h2>
-            <p id="subjectDescription" class="muted">
-              Subject description will appear here.
-            </p>
+        <header class="section-header with-back">
+          <div class="header-content">
+            <button id="backToSubjectsBtn" class="back-btn">← Back</button>
+            <div>
+              <h2 id="subjectTitle">Subject Title</h2>
+              <p id="subjectDescription" class="muted">Description</p>
+            </div>
           </div>
         </header>
 
-        <!-- Filters -->
-        <div class="filters-row">
+        <div id="filtersRow" class="filters-row">
           <div class="field">
             <label for="tagFilter">Filter by tag</label>
             <select id="tagFilter">
@@ -116,73 +104,46 @@
           </div>
         </div>
 
-        <!-- Program list in this subject -->
-        <div id="programList" class="grid program-grid">
-          <!-- program cards rendered by JS -->
-        </div>
+        <div id="programList" class="grid program-grid"></div>
 
-        <!-- Program Detail Panel -->
         <section id="programDetail" class="program-detail hidden">
           <header class="program-detail-header">
-            <div>
-              <h3 id="programDetailTitle">Program Title</h3>
-              <p id="programDetailMeta" class="muted small-text">
-                Subject • Language
-              </p>
+            <div class="header-content">
+              <button id="backToProgramsBtn" class="back-btn">← Back</button>
+              <div>
+                <h3 id="programDetailTitle">Program Title</h3>
+                <p id="programDetailMeta" class="muted small-text">
+                  Subject • Language
+                </p>
+              </div>
             </div>
-            <span id="saveStatus" class="muted small-text"></span>
           </header>
 
           <article class="program-detail-body">
             <h4>Problem / Aim</h4>
-            <p id="programDetailProblem" class="problem-text">
-              Aim of the program will show here.
-            </p>
+            <p id="programDetailProblem" class="problem-text">Aim</p>
 
             <div class="code-layout">
-              <!-- Provided Code -->
-              <div class="code-pane">
+              <div class="code-pane full-width">
                 <div class="pane-header">
-                  <span>Provided Code</span>
+                  <span>Source Code</span>
                   <div class="pane-actions">
-                    <button id="copyCodeBtn" class="ghost-btn small">
-                      Copy
+                    <button id="copyCodeBtn" class="primary-btn small">
+                      Copy Code
                     </button>
                   </div>
                 </div>
                 <pre id="programCode" class="code-block"></pre>
               </div>
-
-              <!-- User Editable Code -->
-              <div class="code-pane">
-                <div class="pane-header">
-                  <span>Your Code (Editable)</span>
-                  <div class="pane-actions">
-                    <button id="saveUserCodeBtn" class="secondary-btn small">
-                      Save
-                    </button>
-                    <button id="copyUserCodeBtn" class="ghost-btn small">
-                      Copy
-                    </button>
-                  </div>
-                </div>
-                <textarea
-                  id="userCodeInput"
-                  class="code-input"
-                  spellcheck="false"
-                  placeholder="Edit or paste your own version of the code here. Saved only in this browser."
-                ></textarea>
-              </div>
             </div>
 
-            <!-- Run Output -->
             <div class="run-panel">
               <div class="run-header">
                 <button id="runCodeBtn" class="primary-btn small">
                   ▶ Run Code
                 </button>
                 <span id="runOutputNote" class="muted small-text">
-                  JavaScript &amp; HTML/CSS/JS snippets run inside the browser.
+                  Runs locally in browser.
                 </span>
               </div>
 
@@ -193,15 +154,11 @@
         </section>
       </section>
 
-      <!-- ALL PROGRAMS + SEARCH -->
       <section id="all-programs" class="section">
         <header class="section-header">
           <div>
             <h2>All Programs</h2>
-            <p class="muted">
-              Search across all subjects by title, tag, language or subject
-              name.
-            </p>
+            <p class="muted">Search across all subjects.</p>
           </div>
         </header>
 
@@ -209,41 +166,30 @@
           <input
             id="globalSearchInput"
             type="search"
-            placeholder="Search e.g. BFS, stacks, HTML form, Python..."
+            placeholder="Search e.g. BFS, HTML..."
           />
           <button type="submit" class="primary-btn small">Search</button>
         </form>
         <p id="searchSummary" class="muted small-text"></p>
 
-        <div id="allProgramsList" class="grid program-grid">
-          <!-- all programs list rendered by JS -->
-        </div>
+        <div id="allProgramsList" class="grid program-grid"></div>
       </section>
 
-      <!-- NOTES / MATERIAL LINKS -->
       <section id="notes" class="section">
         <header class="section-header">
           <div>
             <h2>Notes & Materials</h2>
-            <p class="muted">
-              Attach PDFs, reference links, and any extra material here.
-            </p>
           </div>
         </header>
-
-        <div id="notesList" class="grid notes-grid">
-          <!-- notes cards rendered by JS -->
-        </div>
+        <div id="notesList" class="grid notes-grid"></div>
       </section>
     </main>
 
-    <!-- Toast Notification -->
     <div id="toast" class="toast hidden"></div>
 
-    <!-- Footer -->
     <footer class="footer">
       <span class="muted small-text">
-        © <span id="year"></span> Steve's Lab Hub • Built for college labs
+        © <span id="year"></span> Steve's Lab Hub
       </span>
     </footer>
 

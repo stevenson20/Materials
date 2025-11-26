@@ -6,7 +6,6 @@ let currentProgram = null;
 
 // DOM refs
 const subjectGridEl = document.getElementById("subjectGrid");
-const subjectDetailSection = document.getElementById("subject-detail");
 const subjectTitleEl = document.getElementById("subjectTitle");
 const subjectDescriptionEl = document.getElementById("subjectDescription");
 const tagFilterEl = document.getElementById("tagFilter");
@@ -18,23 +17,21 @@ const programDetailMetaEl = document.getElementById("programDetailMeta");
 const programDetailProblemEl = document.getElementById("programDetailProblem");
 const programCodeEl = document.getElementById("programCode");
 const copyCodeBtn = document.getElementById("copyCodeBtn");
-const saveUserCodeBtn = document.getElementById("saveUserCodeBtn");
-const copyUserCodeBtn = document.getElementById("copyUserCodeBtn");
-const userCodeInputEl = document.getElementById("userCodeInput");
 const runCodeBtn = document.getElementById("runCodeBtn");
 const runOutputEl = document.getElementById("runOutput");
 const runOutputNoteEl = document.getElementById("runOutputNote");
 const htmlRunnerEl = document.getElementById("htmlRunner");
 const toastEl = document.getElementById("toast");
 const yearEl = document.getElementById("year");
-
 const globalSearchInputEl = document.getElementById("globalSearchInput");
 const searchFormEl = document.getElementById("searchForm");
 const searchSummaryEl = document.getElementById("searchSummary");
 const allProgramsListEl = document.getElementById("allProgramsList");
 const notesListEl = document.getElementById("notesList");
-
 const themeToggleBtn = document.getElementById("themeToggle");
+const backToSubjectsBtn = document.getElementById("backToSubjectsBtn");
+const backToProgramsBtn = document.getElementById("backToProgramsBtn");
+const filtersRowEl = document.getElementById("filtersRow");
 
 // ========== UTILITIES ==========
 
@@ -49,21 +46,14 @@ function showToast(message) {
   }, 1600);
 }
 
-function programUserKey(subjectId, programId) {
-  return `labhub_usercode_${subjectId}_${programId}`;
-}
-
 // Combine html+css+js to one runnable HTML snippet.
-// If prog.code exists (Python, JS etc.), just return that.
 function combineHtmlCssJs(prog) {
-  if (prog.code) return prog.code;
-
+  if (prog.code) return prog.code; // Return pure code if it exists
   const hasParts = prog.html || prog.css || prog.js;
   if (!hasParts) return "";
 
   let html =
-    prog.html ||
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Program</title></head><body><h1>Program</h1></body></html>';
+    prog.html || "<!DOCTYPE html><html><head></head><body></body></html>";
   const css = prog.css || "";
   const js = prog.js || "";
 
@@ -85,11 +75,9 @@ function combineHtmlCssJs(prog) {
       html = html + "<script>\n" + js + "\n</script>";
     }
   }
-
   return html;
 }
 
-// Run HTML snippet in iframe
 function runHtmlSnippet(html) {
   if (!htmlRunnerEl) return;
   htmlRunnerEl.classList.remove("hidden");
@@ -97,86 +85,80 @@ function runHtmlSnippet(html) {
   runOutputEl.textContent = "";
 }
 
-// Simple JS sandbox (evaluation) for pure JS programs
 function runJavaScriptInSandbox(code, outputEl) {
   try {
-    // Capture console.log
     let logs = [];
     const originalLog = console.log;
     console.log = function (...args) {
       logs.push(args.join(" "));
       originalLog.apply(console, args);
     };
-
-    // Run code
     const result = new Function(code)();
     console.log = originalLog;
 
     let text = "";
-    if (logs.length) {
-      text += "Console output:\n" + logs.join("\n") + "\n";
-    }
-    if (result !== undefined) {
-      text += "\nReturn value:\n" + String(result);
-    }
-    if (!text) text = "Code executed.";
+    if (logs.length) text += "Console:\n" + logs.join("\n") + "\n";
+    if (result !== undefined) text += "\nResult:\n" + String(result);
+    if (!text) text = "Executed successfully (no output).";
     outputEl.textContent = text;
   } catch (err) {
-    outputEl.textContent = "Error while executing JavaScript:\n" + err;
+    outputEl.textContent = "Error:\n" + err;
   }
 }
 
 // ========== NAVIGATION & THEME ==========
 
 function switchSection(targetId) {
-  const sections = document.querySelectorAll("main .section");
-  sections.forEach((sec) => {
-    if (sec.id === targetId) {
-      sec.classList.add("active");
-    } else {
-      sec.classList.remove("active");
-    }
+  document.querySelectorAll("main .section").forEach((sec) => {
+    sec.classList.toggle("active", sec.id === targetId);
   });
-
-  const navLinks = document.querySelectorAll(
-    ".main-nav .nav-link, .hero-actions button"
-  );
-  navLinks.forEach((btn) => {
-    const target = btn.getAttribute("data-section-target");
-    if (target === targetId) {
-      btn.classList.add("active");
-    } else if (btn.classList.contains("nav-link")) {
-      btn.classList.remove("active");
-    }
+  document.querySelectorAll(".main-nav .nav-link").forEach((btn) => {
+    btn.classList.toggle(
+      "active",
+      btn.getAttribute("data-section-target") === targetId
+    );
   });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function initNavigation() {
-  const navButtons = document.querySelectorAll("[data-section-target]");
-  navButtons.forEach((btn) => {
+  document.querySelectorAll("[data-section-target]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = btn.getAttribute("data-section-target");
-      if (target) {
-        switchSection(target);
-      }
+      if (target) switchSection(target);
     });
   });
+
+  // Back Button Logic
+  if (backToSubjectsBtn) {
+    backToSubjectsBtn.addEventListener("click", () => {
+      switchSection("subjects");
+    });
+  }
+
+  if (backToProgramsBtn) {
+    backToProgramsBtn.addEventListener("click", () => {
+      // Go back to the list view within the subject detail
+      programDetailEl.classList.add("hidden");
+      programListEl.classList.remove("hidden");
+      if (filtersRowEl) filtersRowEl.classList.remove("hidden");
+
+      // Scroll to top of section
+      document
+        .getElementById("subject-detail")
+        .scrollIntoView({ behavior: "smooth" });
+    });
+  }
 }
 
 function initTheme() {
   const root = document.documentElement;
-  const stored = localStorage.getItem("labhub_theme");
-  if (stored) {
-    root.setAttribute("data-theme", stored);
-    if (stored === "dark") {
-      themeToggleBtn.textContent = "🌙";
-    } else {
-      themeToggleBtn.textContent = "☀️";
-    }
-  }
+  const stored = localStorage.getItem("labhub_theme") || "dark";
+  root.setAttribute("data-theme", stored);
+  themeToggleBtn.textContent = stored === "dark" ? "🌙" : "☀️";
 
   themeToggleBtn.addEventListener("click", () => {
-    const current = root.getAttribute("data-theme") || "dark";
+    const current = root.getAttribute("data-theme");
     const next = current === "dark" ? "light" : "dark";
     root.setAttribute("data-theme", next);
     localStorage.setItem("labhub_theme", next);
@@ -184,17 +166,14 @@ function initTheme() {
   });
 }
 
-// ========== RENDER SUBJECTS ==========
+// ========== RENDER LOGIC ==========
 
 function renderSubjects() {
   if (!subjectGridEl) return;
   subjectGridEl.innerHTML = "";
-
   subjects.forEach((subj) => {
     const card = document.createElement("article");
     card.className = "card subject-card";
-    card.dataset.subjectId = subj.id;
-
     card.innerHTML = `
       <h3>${subj.name}</h3>
       <p class="muted">${subj.short || ""}</p>
@@ -202,22 +181,10 @@ function renderSubjects() {
         <span class="muted small-text">${
           (subj.programs || []).length
         } programs</span>
-        <button class="secondary-btn small">View lab programs</button>
+        <button class="secondary-btn small">View</button>
       </div>
     `;
-
-    const open = () => openSubject(subj.id);
-    card.addEventListener("click", (e) => {
-      // Avoid double-trigger if button clicked
-      if (e.target.tagName.toLowerCase() === "button") return;
-      open();
-    });
-    const btn = card.querySelector("button");
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      open();
-    });
-
+    card.addEventListener("click", () => openSubject(subj.id));
     subjectGridEl.appendChild(card);
   });
 }
@@ -228,13 +195,17 @@ function openSubject(subjectId) {
   currentSubject = subj;
 
   switchSection("subject-detail");
+  // Reset view to list
+  programListEl.classList.remove("hidden");
+  programDetailEl.classList.add("hidden");
+  if (filtersRowEl) filtersRowEl.classList.remove("hidden");
 
   subjectTitleEl.textContent = subj.name;
   subjectDescriptionEl.textContent = subj.short || "";
 
+  // Filters logic
   const tagsSet = new Set();
   const langsSet = new Set();
-
   (subj.programs || []).forEach((p) => {
     (p.tags || []).forEach((t) => tagsSet.add(t));
     if (p.language) langsSet.add(p.language);
@@ -242,73 +213,40 @@ function openSubject(subjectId) {
   });
 
   tagFilterEl.innerHTML = `<option value="">All tags</option>`;
-  Array.from(tagsSet)
-    .sort()
-    .forEach((t) => {
-      const opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = t;
-      tagFilterEl.appendChild(opt);
-    });
+  tagsSet.forEach(
+    (t) => (tagFilterEl.innerHTML += `<option value="${t}">${t}</option>`)
+  );
 
   languageFilterEl.innerHTML = `<option value="">All languages</option>`;
-  Array.from(langsSet)
-    .sort()
-    .forEach((l) => {
-      const opt = document.createElement("option");
-      opt.value = l;
-      opt.textContent = l;
-      languageFilterEl.appendChild(opt);
-    });
-
-  tagFilterEl.value = "";
-  languageFilterEl.value = "";
+  langsSet.forEach(
+    (l) => (languageFilterEl.innerHTML += `<option value="${l}">${l}</option>`)
+  );
 
   renderProgramList(subj);
-  programDetailEl.classList.add("hidden");
 }
-
-// ========== RENDER PROGRAMS IN SUBJECT ==========
 
 function renderProgramList(subj) {
   programListEl.innerHTML = "";
-
   const tagFilter = tagFilterEl.value;
   const langFilter = languageFilterEl.value;
 
   (subj.programs || []).forEach((p) => {
     if (tagFilter && !(p.tags || []).includes(tagFilter)) return;
     const langLabel =
-      p.language ||
-      (p.html || p.css || p.js ? "HTML/CSS/JS" : "Language not set");
+      p.language || (p.html || p.css || p.js ? "HTML/CSS/JS" : "Unknown");
     if (langFilter && langLabel !== langFilter) return;
 
     const card = document.createElement("article");
     card.className = "card program-card";
-    card.dataset.programId = p.id;
-
     card.innerHTML = `
-      <h3>${p.title || "Untitled Program"}</h3>
+      <h3>${p.title || "Untitled"}</h3>
       <p class="card-subtitle">${langLabel}</p>
-      <p class="muted small-text">${(p.tags || []).join(", ")}</p>
-      <button class="primary-btn small">View details</button>
+      <button class="primary-btn small" style="margin-top:10px;">View Code</button>
     `;
-
-    const open = () => openProgramDetail(subj.id, p.id);
-    card.addEventListener("click", (e) => {
-      if (e.target.tagName.toLowerCase() === "button") return;
-      open();
-    });
-    card.querySelector("button").addEventListener("click", (e) => {
-      e.stopPropagation();
-      open();
-    });
-
+    card.addEventListener("click", () => openProgramDetail(subj.id, p.id));
     programListEl.appendChild(card);
   });
 }
-
-// ========== PROGRAM DETAIL ==========
 
 function openProgramDetail(subjectId, programId) {
   const subj = subjects.find((s) => s.id === subjectId);
@@ -319,181 +257,39 @@ function openProgramDetail(subjectId, programId) {
   currentSubject = subj;
   currentProgram = prog;
 
+  // UI State: Hide List, Show Detail
+  programListEl.classList.add("hidden");
+  if (filtersRowEl) filtersRowEl.classList.add("hidden");
   programDetailEl.classList.remove("hidden");
 
-  programDetailTitleEl.textContent = prog.title || "Untitled Program";
-  const langLabel =
-    prog.language ||
-    (prog.html || prog.css || prog.js ? "HTML/CSS/JS" : "Language not set");
+  programDetailTitleEl.textContent = prog.title;
+  const langLabel = prog.language || "HTML/CSS/JS";
   programDetailMetaEl.textContent = `${subj.name} • ${langLabel}`;
   programDetailProblemEl.textContent = prog.problem || "";
 
+  // Combine and show code
   const combined = combineHtmlCssJs(prog);
   programCodeEl.textContent = combined;
 
+  // Reset runner
   runOutputEl.textContent = "";
-  runOutputNoteEl.textContent =
-    "JavaScript and HTML/CSS/JS snippets run inside the browser. Python/C are view-only.";
   if (htmlRunnerEl) {
     htmlRunnerEl.classList.add("hidden");
     htmlRunnerEl.srcdoc = "";
   }
 
-  const key = programUserKey(subjectId, programId);
-  const stored = localStorage.getItem(key);
-  userCodeInputEl.value = stored || combined;
-  document.getElementById("saveStatus").textContent = "";
+  // Auto-scroll to code view
+  setTimeout(() => {
+    programDetailEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 100);
 }
 
-// ========== ALL PROGRAMS (GLOBAL SEARCH) ==========
-
-function buildFlatPrograms() {
-  allProgramsFlat = [];
-  subjects.forEach((subj) => {
-    (subj.programs || []).forEach((p) => {
-      allProgramsFlat.push({
-        subjectId: subj.id,
-        subjectName: subj.name,
-        ...p,
-      });
-    });
-  });
-}
-
-function renderAllPrograms(filterText = "") {
-  allProgramsListEl.innerHTML = "";
-  const q = filterText.trim().toLowerCase();
-
-  let count = 0;
-  allProgramsFlat.forEach((p) => {
-    const langLabel =
-      p.language ||
-      (p.html || p.css || p.js ? "HTML/CSS/JS" : "Language not set");
-
-    const hay = (
-      (p.title || "") +
-      " " +
-      (p.problem || "") +
-      " " +
-      (p.tags || []).join(" ") +
-      " " +
-      p.subjectName +
-      " " +
-      langLabel
-    ).toLowerCase();
-
-    if (q && !hay.includes(q)) return;
-
-    const card = document.createElement("article");
-    card.className = "card program-card";
-
-    card.innerHTML = `
-      <h3>${p.title || "Untitled Program"}</h3>
-      <p class="card-subtitle">${p.subjectName} • ${langLabel}</p>
-      <p class="muted small-text">${(p.tags || []).join(", ")}</p>
-      <button class="primary-btn small">Open</button>
-    `;
-
-    card.addEventListener("click", (e) => {
-      if (e.target.tagName.toLowerCase() === "button") return;
-      openSubject(p.subjectId);
-      openProgramDetail(p.subjectId, p.id);
-      switchSection("subject-detail");
-    });
-    card.querySelector("button").addEventListener("click", (e) => {
-      e.stopPropagation();
-      openSubject(p.subjectId);
-      openProgramDetail(p.subjectId, p.id);
-      switchSection("subject-detail");
-    });
-
-    allProgramsListEl.appendChild(card);
-    count++;
-  });
-
-  if (q) {
-    searchSummaryEl.textContent = `Found ${count} program(s) for "${filterText}".`;
-  } else {
-    searchSummaryEl.textContent = `Showing all ${count} programs.`;
-  }
-}
-
-// ========== NOTES ==========
-
-function renderNotes() {
-  // for now just info card
-  notesListEl.innerHTML = `
-    <article class="card note-card">
-      <h3>How to use this hub</h3>
-      <p class="muted small-text">
-        Select a subject, open a program, copy the code or edit your own version.
-        Your changes are stored locally in this browser.
-      </p>
-    </article>
-  `;
-}
-
-// ========== EVENT BINDINGS ==========
-
-if (tagFilterEl && languageFilterEl) {
-  tagFilterEl.addEventListener("change", () => {
-    if (currentSubject) renderProgramList(currentSubject);
-  });
-  languageFilterEl.addEventListener("change", () => {
-    if (currentSubject) renderProgramList(currentSubject);
-  });
-}
-
-if (copyCodeBtn) {
-  copyCodeBtn.addEventListener("click", async () => {
-    const text = programCodeEl.textContent || "";
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast("Provided code copied!");
-    } catch {
-      showToast("Could not copy.");
-    }
-  });
-}
-
-if (copyUserCodeBtn) {
-  copyUserCodeBtn.addEventListener("click", async () => {
-    const text = userCodeInputEl.value || "";
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast("Your code copied!");
-    } catch {
-      showToast("Could not copy.");
-    }
-  });
-}
-
-if (saveUserCodeBtn) {
-  saveUserCodeBtn.addEventListener("click", () => {
-    if (!currentSubject || !currentProgram) return;
-    const key = programUserKey(currentSubject.id, currentProgram.id);
-    localStorage.setItem(key, userCodeInputEl.value);
-    const statusEl = document.getElementById("saveStatus");
-    if (statusEl) {
-      statusEl.textContent = "Saved locally";
-      setTimeout(() => {
-        statusEl.textContent = "";
-      }, 1500);
-    }
-    showToast("Code saved in this browser.");
-  });
-}
+// ========== SEARCH & RUN ==========
 
 if (runCodeBtn) {
   runCodeBtn.addEventListener("click", () => {
-    if (!currentProgram) {
-      runOutputEl.textContent = "No program selected.";
-      if (htmlRunnerEl) htmlRunnerEl.classList.add("hidden");
-      return;
-    }
-
-    const defaultSource = combineHtmlCssJs(currentProgram);
-    const codeToRun = userCodeInputEl.value.trim() || defaultSource || "";
+    if (!currentProgram) return;
+    const code = combineHtmlCssJs(currentProgram);
     const lang = (currentProgram.language || "").toLowerCase();
 
     runOutputEl.textContent = "";
@@ -502,73 +298,94 @@ if (runCodeBtn) {
       htmlRunnerEl.srcdoc = "";
     }
 
-    // Programs defined using html/css/js parts -> run as HTML snippet
     if (currentProgram.html || currentProgram.css || currentProgram.js) {
-      runOutputNoteEl.textContent =
-        "Rendering HTML/CSS/JS snippet in the frame below.";
-      runHtmlSnippet(codeToRun);
+      runOutputNoteEl.textContent = "Rendering HTML/CSS/JS...";
+      runHtmlSnippet(code);
       return;
     }
-
-    // Plain JavaScript language programs
     if (lang === "javascript" || lang === "js") {
-      runOutputNoteEl.textContent =
-        "Running JavaScript directly in the browser.";
-      runJavaScriptInSandbox(codeToRun, runOutputEl);
+      runOutputNoteEl.textContent = "Running JS...";
+      runJavaScriptInSandbox(code, runOutputEl);
       return;
     }
-
-    // Python / C / others: view-only
-    if (lang === "python" || lang === "py" || lang === "c") {
-      runOutputNoteEl.textContent =
-        "Python/C execution requires a browser interpreter (Pyodide/WebAssembly) or backend service.";
-      runOutputEl.textContent =
-        "Execution is enabled only for JavaScript and HTML/CSS/JS snippets.\n" +
-        "For " +
-        (currentProgram.language || "this language") +
-        " programs, please use an external compiler/IDE.";
-      return;
-    }
-
-    runOutputNoteEl.textContent =
-      "This language is not configured for execution. Code is view-only.";
+    runOutputNoteEl.textContent = "View only.";
     runOutputEl.textContent =
-      "Execution is not available for language: " +
-      (currentProgram.language || "Unknown") +
-      ".";
+      "Execution available only for JS and HTML snippets.";
   });
 }
 
-// Global search
+if (copyCodeBtn) {
+  copyCodeBtn.addEventListener("click", () => {
+    navigator.clipboard
+      .writeText(programCodeEl.textContent)
+      .then(() => showToast("Copied to clipboard!"))
+      .catch(() => showToast("Failed to copy"));
+  });
+}
+
+function renderAllPrograms(filter) {
+  allProgramsListEl.innerHTML = "";
+  const q = filter.toLowerCase();
+  let count = 0;
+  allProgramsFlat.forEach((p) => {
+    const text = (
+      p.title +
+      " " +
+      p.subjectName +
+      " " +
+      (p.tags || []).join(" ")
+    ).toLowerCase();
+    if (q && !text.includes(q)) return;
+
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `<h3>${p.title}</h3><p class="muted small-text">${p.subjectName}</p>`;
+    card.addEventListener("click", () => {
+      openSubject(p.subjectId);
+      openProgramDetail(p.subjectId, p.id);
+    });
+    allProgramsListEl.appendChild(card);
+    count++;
+  });
+  searchSummaryEl.textContent = `Found ${count} programs.`;
+}
+
 if (searchFormEl) {
   searchFormEl.addEventListener("submit", (e) => {
     e.preventDefault();
-    renderAllPrograms(globalSearchInputEl.value || "");
+    renderAllPrograms(globalSearchInputEl.value);
     switchSection("all-programs");
   });
 }
 
-// ========== INITIAL LOAD ==========
+// ========== INIT ==========
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (yearEl) {
-    yearEl.textContent = new Date().getFullYear();
-  }
-
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
   initNavigation();
   initTheme();
-  renderNotes();
+
+  if (tagFilterEl)
+    tagFilterEl.addEventListener("change", () =>
+      renderProgramList(currentSubject)
+    );
+  if (languageFilterEl)
+    languageFilterEl.addEventListener("change", () =>
+      renderProgramList(currentSubject)
+    );
 
   fetch("programs.json")
     .then((res) => res.json())
     .then((data) => {
       subjects = data.subjects || [];
       renderSubjects();
-      buildFlatPrograms();
+      // Build flat list for search
+      subjects.forEach((s) => {
+        (s.programs || []).forEach((p) =>
+          allProgramsFlat.push({ ...p, subjectId: s.id, subjectName: s.name })
+        );
+      });
       renderAllPrograms("");
     })
-    .catch((err) => {
-      console.error("Error loading programs.json", err);
-      showToast("Failed to load programs.json");
-    });
+    .catch((err) => console.error(err));
 });
