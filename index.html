@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="glow-overlay"></div>
+
     <header class="top-bar">
       <div class="brand">
         <span class="brand-mark">λ</span>
@@ -24,7 +26,9 @@
         <button class="nav-link" data-section-target="all-programs">
           All Programs
         </button>
-        <button class="nav-link" data-section-target="notes">Notes</button>
+        <button class="nav-link" data-section-target="notes">
+          Notes & Links
+        </button>
       </nav>
 
       <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">
@@ -78,13 +82,15 @@
       </section>
 
       <section id="subject-detail" class="section">
-        <header class="section-header with-back">
+        <header id="subjectHeader" class="section-header">
           <div class="header-content">
-            <button id="backToSubjectsBtn" class="back-btn">← Back</button>
             <div>
               <h2 id="subjectTitle">Subject Title</h2>
               <p id="subjectDescription" class="muted">Description</p>
             </div>
+            <button id="backToSubjectsBtn" class="back-btn">
+              Back to List <span>→</span>
+            </button>
           </div>
         </header>
 
@@ -109,12 +115,25 @@
         <section id="programDetail" class="program-detail hidden">
           <header class="program-detail-header">
             <div class="header-content">
-              <button id="backToProgramsBtn" class="back-btn">← Back</button>
               <div>
                 <h3 id="programDetailTitle">Program Title</h3>
                 <p id="programDetailMeta" class="muted small-text">
                   Subject • Language
                 </p>
+              </div>
+
+              <div class="header-actions-right">
+                <a
+                  id="programReferenceLink"
+                  href="#"
+                  target="_blank"
+                  class="secondary-btn small hidden"
+                >
+                  🔗 Simulation
+                </a>
+                <button id="backToProgramsBtn" class="back-btn">
+                  Back <span>→</span>
+                </button>
               </div>
             </div>
           </header>

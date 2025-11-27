@@ -67,7 +67,8 @@
           "language": "Python",
           "tags": ["8-queens", "backtracking"],
           "problem": "Aim: Write a Program to implement 8-Queens Problem using Python.",
-          "code": "def is_safe(board, row, col):\n    for c in range(col):\n        if board[c] == row:\n            return False\n        if abs(board[c] - row) == abs(c - col):\n            return False\n    return True\n\n\ndef solve_n_queens(n):\n    board = [-1] * n\n    solutions = []\n\n    def backtrack(col):\n        if col == n:\n            solutions.append(board.copy())\n            return\n        for row in range(n):\n            if is_safe(board, row, col):\n                board[col] = row\n                backtrack(col + 1)\n                board[col] = -1\n\n    backtrack(0)\n    return solutions\n\n\ndef print_solution(solution):\n    n = len(solution)\n    for row in range(n):\n        line = ''\n        for col in range(n):\n            if solution[col] == row:\n                line += 'Q '\n            else:\n                line += '- '\n        print(line)\n    print('-' * (n * 2))\n\n\ntry:\n    n = int(input('Enter number of Queens: '))\n    solutions = solve_n_queens(n)\n    print('Total solutions for', n, 'queens:', len(solutions))\n    print()\n    for i, sol in enumerate(solutions):\n        print('Solution', i + 1, ':')\n        print_solution(sol)\nexcept ValueError:\n    print('Invalid input! Please enter a number.')\n"        },
+          "code": "def is_safe(board, row, col):\n    for c in range(col):\n        if board[c] == row:\n            return False\n        if abs(board[c] - row) == abs(c - col):\n            return False\n    return True\n\n\ndef solve_n_queens(n):\n    board = [-1] * n\n    solutions = []\n\n    def backtrack(col):\n        if col == n:\n            solutions.append(board.copy())\n            return\n        for row in range(n):\n            if is_safe(board, row, col):\n                board[col] = row\n                backtrack(col + 1)\n                board[col] = -1\n\n    backtrack(0)\n    return solutions\n\n\ndef print_solution(solution):\n    n = len(solution)\n    for row in range(n):\n        line = ''\n        for col in range(n):\n            if solution[col] == row:\n                line += 'Q '\n            else:\n                line += '- '\n        print(line)\n    print('-' * (n * 2))\n\n\ntry:\n    n = int(input('Enter number of Queens: '))\n    solutions = solve_n_queens(n)\n    print('Total solutions for', n, 'queens:', len(solutions))\n    print()\n    for i, sol in enumerate(solutions):\n        print('Solution', i + 1, ':')\n        print_solution(sol)\nexcept ValueError:\n    print('Invalid input! Please enter a number.')\n"
+        },
         {
           "id": "ai-p9-default-meeting",
           "title": "Program 9: Meeting Scheduling with Default Reasoning",
@@ -82,7 +83,8 @@
           "language": "Python",
           "tags": ["unification", "logic"],
           "problem": "Aim: Write a program to implement the Unification algorithm.",
-          "code": "def is_variable(x):\n    return isinstance(x, str) and x[0].islower()\n\n\ndef substitute(term, subs):\n    if isinstance(term, str):\n        return subs.get(term, term)\n    functor, arg = term\n    return (functor, substitute(arg, subs))\n\n\ndef occurs_check(var, term, subs):\n    term = substitute(term, subs)\n    if var == term:\n        return True\n    if isinstance(term, tuple):\n        return occurs_check(var, term[1], subs)\n    return False\n\n\ndef unify(x, y, subs=None):\n    if subs is None:\n        subs = {}\n    x = substitute(x, subs)\n    y = substitute(y, subs)\n    if x == y:\n        return subs\n    if is_variable(x):\n        if occurs_check(x, y, subs):\n            return None\n        subs[x] = y\n        return subs\n    if is_variable(y):\n        if occurs_check(y, x, subs):\n            return None\n        subs[y] = x\n        return subs\n    if isinstance(x, tuple) and isinstance(y, tuple):\n        fx, ax = x\n        fy, ay = y\n        if fx != fy:\n            return None\n        return unify(ax, ay, subs)\n    return None\n\n\ndef parse_input(s):\n    s = s.strip()\n    # Simple parser for terms like 'likes(x)' -> ('likes', 'x')\n    if '(' in s and s.endswith(')'):\n        func = s[:s.find('(')]\n        arg = s[s.find('(') + 1:-1]\n        return (func, parse_input(arg))\n    return s\n\n\nprint('Unification Algorithm')\nprint('Enter terms like: likes(x) or knows(John)')\ns1 = input('Enter first term: ')\ns2 = input('Enter second term: ')\n\nx = parse_input(s1)\ny = parse_input(s2)\n\nresult = unify(x, y)\n\nif result is None:\n    print('Unification failed!')\nelse:\n    print('Unifier for', x, 'and', y, 'is:')\n    print(result)\n"        },
+          "code": "def is_variable(x):\n    return isinstance(x, str) and x[0].islower()\n\n\ndef substitute(term, subs):\n    if isinstance(term, str):\n        return subs.get(term, term)\n    functor, arg = term\n    return (functor, substitute(arg, subs))\n\n\ndef occurs_check(var, term, subs):\n    term = substitute(term, subs)\n    if var == term:\n        return True\n    if isinstance(term, tuple):\n        return occurs_check(var, term[1], subs)\n    return False\n\n\ndef unify(x, y, subs=None):\n    if subs is None:\n        subs = {}\n    x = substitute(x, subs)\n    y = substitute(y, subs)\n    if x == y:\n        return subs\n    if is_variable(x):\n        if occurs_check(x, y, subs):\n            return None\n        subs[x] = y\n        return subs\n    if is_variable(y):\n        if occurs_check(y, x, subs):\n            return None\n        subs[y] = x\n        return subs\n    if isinstance(x, tuple) and isinstance(y, tuple):\n        fx, ax = x\n        fy, ay = y\n        if fx != fy:\n            return None\n        return unify(ax, ay, subs)\n    return None\n\n\ndef parse_input(s):\n    s = s.strip()\n    # Simple parser for terms like 'likes(x)' -> ('likes', 'x')\n    if '(' in s and s.endswith(')'):\n        func = s[:s.find('(')]\n        arg = s[s.find('(') + 1:-1]\n        return (func, parse_input(arg))\n    return s\n\n\nprint('Unification Algorithm')\nprint('Enter terms like: likes(x) or knows(John)')\ns1 = input('Enter first term: ')\ns2 = input('Enter second term: ')\n\nx = parse_input(s1)\ny = parse_input(s2)\n\nresult = unify(x, y)\n\nif result is None:\n    print('Unification failed!')\nelse:\n    print('Unifier for', x, 'and', y, 'is:')\n    print(result)\n"
+        },
         {
           "id": "ai-p11-kb-system",
           "title": "Program 11: Simple Knowledge Base System",
@@ -207,8 +209,166 @@
       "id": "tinkering-lab",
       "name": "Tinkering Lab",
       "short": "Hardware, IoT, experiments and prototypes.",
-      "programs": []
+      "programs": [
+        {
+          "id": "tinker-4",
+          "title": "4. Temp & Humidity Monitor",
+          "problem": "To create a temperature and humidity monitoring system using an Arduino, a DHT11 sensor, and an LCD display within the Tinkercad environment.",
+          "reference": "https://www.tinkercad.com/things/8sohij0eNnL-experiment-4/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard%2Fdesigns%2Fcircuits",
+          "language": "cpp",
+          "tags": ["Arduino", "Sensors", "LCD", "IoT"],
+          "code": "#include <LiquidCrystal.h>\n\nLiquidCrystal lcd(12, 11, 5, 4, 3, 2);\nconst int tempPin = A0;\nconst int humidityPin = A1;\n\nint rawValue = 0;\ndouble voltage = 0;\ndouble tempC = 0;\ndouble tempF = 0;\nint humidityValue = 0;\n\nvoid setup() {\n  lcd.begin(16, 2);\n  lcd.print(\"Temp & Humidity\");\n  delay(2000);\n  lcd.clear();\n}\n\nvoid loop() {\n  rawValue = analogRead(tempPin);\n  voltage = (rawValue / 1023.0) * 5000;\n  tempC = (voltage - 500) * 0.1;\n  tempF = (tempC * 1.8) + 32;\n\n  humidityValue = analogRead(humidityPin);\n  int humidityPercent = map(humidityValue, 0, 1023, 10, 70);\n\n  lcd.setCursor(0, 0);\n  lcd.print(\"T:\");\n  lcd.print(tempC, 1);\n  lcd.print(\"C \");\n  lcd.print(tempF, 1);\n  lcd.print(\"F\");\n\n  lcd.setCursor(0, 1);\n  lcd.print(\"H:\");\n  lcd.print(humidityPercent);\n  lcd.print(\"%      \");\n\n  delay(1000);\n}"
+        },
+        {
+          "id": "tinker-5",
+          "title": "5. Water Level Indicator",
+          "problem": "To create a virtual water level indicator using an ultrasonic sensor and LCDs for a 600 Litre Water Tank.",
+          "reference": "https://www.tinkercad.com/things/8sohij0eNnL-experiment-4/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard%2Fdesigns%2Fcircuits",
+          "language": "cpp",
+          "tags": ["Arduino", "Ultrasonic", "LCD"],
+          "code": "#include<LiquidCrystal.h>\nLiquidCrystal lcd(2,3,4,5,6,7);\nlong duration;\n\nlong UltrasonicDistance(int trigPin, int echoPin)\n{\n  pinMode(trigPin, OUTPUT);\n  pinMode(echoPin, INPUT);\n  digitalWrite(trigPin, HIGH);\n  delayMicroseconds(2);\n  digitalWrite(trigPin,HIGH);\n  delayMicroseconds(10);\n  digitalWrite(trigPin, LOW);\n  return pulseIn(echoPin, HIGH);\n}\n\nvoid setup()\n{\n  Serial.begin(9600);\n  lcd.begin(16,2);\n  lcd.clear();\n  lcd.print(\"Water Level(%)\");\n}\n\nvoid loop()\n{\n  float dist = 0.01723 * UltrasonicDistance(9,10);\n  int level = map(dist, 334 , 0, 0 , 100);\n  lcd.setCursor(0,1);\n  lcd.print(level);\n  lcd.setCursor(3,1);\n  lcd.print(\"%\");\n  int speed=10;\n\n  if( level >=99) {\n    analogWrite(11,0);\n  }\n  else if( level <95) {\n    analogWrite(11,speed);\n  }\n  else {\n    analogWrite(11,0);\n  }\n}"
+        },
+        {
+          "id": "tinker-6",
+          "title": "6. Auto Plant Watering",
+          "problem": "To design an automatic plant watering system controlled by a temperature sensor. The system activates the pump when thresholds are exceeded.",
+          "reference": "https://www.tinkercad.com/things/2cTfQT7fAno-automated-plant-watering-system",
+          "language": "cpp",
+          "tags": ["Arduino", "Automation", "Agriculture"],
+          "code": "#include <LiquidCrystal.h>\n\nconst int LM35 = A0;\nconst int motor = 13;\nconst int LedRed = 12;\nconst int LedGreen = 11;\n\nLiquidCrystal lcd(2, 3, 4, 5, 6, 7);\n\nvoid setup() {\n  Serial.begin(9600);\n  lcd.begin(16, 2);\n  lcd.print(\"Automated Plant\");\n  lcd.setCursor(0,1);\n  lcd.print(\"Watering System!\");\n  pinMode(motor, OUTPUT);\n  pinMode(LedRed, OUTPUT);\n  pinMode(LedGreen, OUTPUT);\n  delay(2000);\n  lcd.clear();\n  lcd.print(\"Temp= \");\n  lcd.setCursor(0,1);\n  lcd.print(\"WaterPump= \");\n}\n\nvoid loop() {\n  int value = analogRead(LM35);\n  float Temperature = value * 500.0 / 1023.0;\n  lcd.setCursor(6,0);\n  lcd.print(Temperature);\n  lcd.setCursor(11,1);\n\n  if (Temperature > 50){\n    digitalWrite(motor, HIGH);\n    digitalWrite(LedRed, HIGH);\n    digitalWrite(LedGreen, LOW);\n    lcd.print(\"ON \");\n  }\n  else {\n    digitalWrite(motor, LOW);\n    digitalWrite(LedRed, LOW);\n    digitalWrite(LedGreen, HIGH);\n    lcd.print(\"OFF\");\n  }\n  delay(1000);\n}"
+        },
+        {
+          "id": "tinker-7",
+          "title": "7. Door Lock System",
+          "problem": "To design and simulate an Arduino-based door lock system using a Keypad and Servo motor.",
+          "reference": "https://www.tinkercad.com/things/cMDBAUzuXqA-door-lock",
+          "language": "cpp",
+          "tags": ["Arduino", "Security", "Servo", "Keypad"],
+          "code": "#include <Keypad.h>\n#include <LiquidCrystal.h>\n#include <Servo.h>\n#define Password_Length 5\n\nServo myservo;\nLiquidCrystal lcd(A0, A1, A2, A3, A4, A5);\nint pos = 0;\nchar Data[Password_Length];\nchar Master[Password_Length] = \"1234\";\nbyte data_count = 0, master_count = 0;\nbool Pass_is_good;\nbool door = false;\nchar customKey;\n\nconst byte ROWS = 4;\nconst byte COLS = 4;\nchar keys[ROWS][COLS] = {\n{'1', '2', '3', 'A'},\n{'4', '5', '6', 'B'},\n{'7', '8', '9', 'C'},\n{'*', '0', '#', 'D'}\n};\nbyte rowPins[ROWS] = {0, 1, 2, 3};\nbyte colPins[COLS] = {4, 5, 6, 7};\nKeypad customKeypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS);\n\nvoid setup() {\n  myservo.attach(9, 2000, 2400);\n  ServoClose();\n  lcd.begin(16, 2);\n  lcd.print(\"Protected Door\");\n  loading(\"Loading\");\n  lcd.clear();\n}\n\nvoid loop() {\n  if (door == true) {\n    customKey = customKeypad.getKey();\n    if (customKey == '#') {\n      lcd.clear();\n      ServoClose();\n      lcd.print(\"Door is closed\");\n      delay(3000);\n      door = false;\n    }\n  }\n  else {\n    Open();\n  }\n}\n\nvoid loading (char msg[]) {\n  lcd.setCursor(0, 1);\n  lcd.print(msg);\n  for (int i = 0; i < 9; i++) {\n    delay(1000);\n    lcd.print(\".\");\n  }\n}\n\nvoid clearData() {\n  while (data_count != 0) {\n    Data[data_count--] = 0;\n  }\n  return;\n}\n\nvoid ServoClose() {\n  for (pos = 90; pos >= 0; pos -= 10) {\n    myservo.write(pos);\n  }\n}\n\nvoid ServoOpen() {\n  for (pos = 0; pos <= 90; pos += 10) {\n    myservo.write(pos);\n  }\n}\n\nvoid Open() {\n  lcd.setCursor(0, 0);\n  lcd.print(\"Enter Password\");\n  customKey = customKeypad.getKey();\n  if (customKey) {\n    Data[data_count] = customKey;\n    lcd.setCursor(data_count, 1);\n    lcd.print(Data[data_count]);\n    data_count++;\n  }\n  if (data_count == Password_Length - 1) {\n    if (!strcmp(Data, Master)) {\n      lcd.clear();\n      ServoOpen();\n      lcd.print(\" Door is Open \");\n      door = true;\n      delay(5000);\n      loading(\"Waiting\");\n      lcd.clear();\n      lcd.print(\" Time is up! \");\n      delay(1000);\n      ServoClose();\n      door = false;\n    }\n    else {\n      lcd.clear();\n      lcd.print(\" Wrong Password \");\n      door = false;\n    }\n    delay(1000);\n    lcd.clear();\n    clearData();\n  }\n}"
+        },
+        {
+          "id": "tinker-8",
+          "title": "8. Smart Dustbin",
+          "problem": "To design a basic Arduino Smart Dustbin circuit in Tinkercad, focusing on automatic lid opening.",
+          "reference": "https://www.tinkercad.com/embed/kxwoGlM7BNY?editbtn=1",
+          "language": "cpp",
+          "tags": ["Arduino", "Servo", "Ultrasonic", "Automation"],
+          "code": "#include <Servo.h>\nServo servoMain;\nint trigpin = 10;\nint echopin = 11;\nfloat duration;\nfloat distance;\n\nvoid setup() {\n  servoMain.attach(9);\n  pinMode(trigpin, OUTPUT);\n  pinMode(echopin, INPUT);\n}\n\nvoid loop() {\n  digitalWrite(trigpin, LOW);\n  delayMicroseconds(2);\n  digitalWrite(trigpin, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(trigpin, LOW);\n\n  duration = pulseIn(echopin, HIGH);\n  distance = (duration / 58.82);\n\n  if(distance > 0 && distance < 30) {\n    servoMain.write(180);\n    delay(3000);\n  }\n  else {\n    servoMain.write(0);\n    delay(50);\n  }\n}"
+        },
+        {
+          "id": "tinker-9",
+          "title": "9. Fire Detection System",
+          "problem": "To create a fire detection and alarm system in Tinkercad using an Arduino.",
+          "reference": "https://www.tinkercad.com/things/2X0n2iTvhY2-fire-alarm-system",
+          "language": "cpp",
+          "tags": ["Arduino", "Safety", "Alarm", "Sensors"],
+          "code": "#include<LiquidCrystal.h>\nLiquidCrystal lcd(7, 6, 5, 4, 3, 2);\nint Smoke = 0;\nint r =0;\n\nvoid setup() {\n  pinMode(A0, INPUT);\n  Serial.begin(9600);\n  lcd.begin(16, 2);\n  pinMode(13, OUTPUT);\n  pinMode(12, OUTPUT);\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  Smoke = analogRead(A0);\n  Serial.println(analogRead(A0));\n  if (Smoke >=25) {\n    digitalWrite(13, HIGH);\n    digitalWrite(12, LOW);\n    tone(13, 523);\n    lcd.setCursor(0,0);\n    lcd.print(\"Emergency exit is right to the elevator\");\n    delay(100);\n    lcd.setCursor(0,1);\n    lcd.print(\"Fire and Rescue Dial 101 immediately\");\n    lcd.setCursor(1,0);\n    for(r=0;r<36;r++) {\n      lcd.scrollDisplayLeft();\n      delay(100);\n    }\n  }\n  else {\n    digitalWrite(13, LOW);\n    digitalWrite(12, HIGH);\n    lcd.clear();\n    noTone(13);\n    lcd.setCursor(6,0);\n    lcd.print(\"GOOD\");\n    lcd.setCursor(6,1);\n    lcd.print(\"DAY:)\");\n    delay(1000);\n  }\n  delay(10);\n}"
+        },
+        {
+          "id": "tinker-10",
+          "title": "10 .Smart Irrigation",
+          "problem": "To simulate and design a smart irrigation system using Arduino with temp, light and moisture sensors.",
+          "reference": "https://www.tinkercad.com/things/eKtHRRkOZoA-",
+          "language": "cpp",
+          "tags": ["Arduino", "IoT", "Agriculture", "Sensors"],
+          "code": "#include <Wire.h>\n#include <LiquidCrystal_I2C.h>\n\nint enA = 5;\nint in1 = 3;\nint in2 = 4;\nLiquidCrystal_I2C lcd(32,16,2);\n\nint tempPin = A1;\nint lightPin = A2;\nint moisturePin = A0;\n\nvoid setup() {\n  lcd.begin(16,2);\n  lcd.init();\n  lcd.backlight();\n  Serial.begin(9600);\n  pinMode(enA, OUTPUT);\n  pinMode(in1, OUTPUT);\n  pinMode(in2, OUTPUT);\n}\n\nvoid loop() {\n  int tempValue = analogRead(tempPin);\n  int lightValue = analogRead(lightPin);\n  int moistureValue = analogRead(moisturePin);\n\n  float temp = (((tempValue * 5.0) / 1024.0)-0.5)*100;\n  float light = (lightValue * 5.0) / 1024.0;\n  float moisture = (moistureValue * 5.0) / 1024.0;\n\n  Serial.print(\"Temp \"); Serial.print(temp); Serial.println(\" C\");\n  Serial.print(\"Light:\"); Serial.print(light); Serial.println(\"V\");\n  Serial.print(\"Moist: \"); Serial.print(moisture); Serial.println(\"V\");\n\n  lcd.clear();\n  lcd.setCursor(0, 0);\n  lcd.print(\"Temp:\"); lcd.print(temp); lcd.print(\"C\");\n  lcd.setCursor(0, 1);\n  lcd.print(\"Light:\"); lcd.print(light); lcd.print(\"V\");\n  lcd.setCursor(8, 1);\n  lcd.print(\"Moist:\"); lcd.print(moisture); lcd.print(\"V\");\n\n  if((temp > 30 || light < 2)&& moisture < 4 ) {\n    digitalWrite(in1, HIGH);\n    digitalWrite(in2, LOW);\n    analogWrite(enA, 255);\n    Serial.println(\"Turning on the motor...\");\n  } else {\n    digitalWrite(in1, LOW);\n    digitalWrite(in2, LOW);\n    analogWrite(enA, 0);\n    Serial.println(\"Turning off the motor...\");\n  }\n  delay(1000);\n}"
+        },
+        {
+          "id": "tinker-11",
+          "title": "11. Smart Helmet",
+          "problem": "To design a smart helmet for accident detection, gas leak detection, and high temp alerts.",
+          "reference": "https://www.tinkercad.com/things/h7qvsrFRx9G-accident-prevention-and-detection",
+          "language": "cpp",
+          "tags": ["Arduino", "Safety", "Wearable", "Sensors"],
+          "code": "#include <Servo.h>\nServo servo;\nconst int PIRpin=7;\nconst int buzzerPin=6;\nconst int ledPin=5;\nconst int blue=10;\nconst int green=11;\nconst int red=8;\nconst int temperaturePin = A0;\nconst int gas_pin = A1;\nconst int LEFT = 4, RIGHT=3, UP=2,DOWN=1;\n\nvoid setup() {\n  servo.attach(9);\n  servo.write(0);\n  pinMode(PIRpin, INPUT);\n  pinMode (temperaturePin , INPUT);\n  pinMode (gas_pin, INPUT);\n  pinMode(LEFT, INPUT);\n  pinMode(RIGHT, INPUT);\n  pinMode(UP, INPUT);\n  pinMode(DOWN, INPUT);\n  pinMode(buzzerPin, OUTPUT);\n  pinMode(ledPin, OUTPUT);\n  pinMode(blue, OUTPUT);\n  pinMode(green, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  float degreesC;\n  degreesC=analogRead(0);\n  degreesC=degreesC*0.0048828125;\n  degreesC=(degreesC-0.5)*100;\n\n  int sensorValue;\n  sensorValue = analogRead(gas_pin);\n  int right,left,up,down;\n  right = digitalRead(RIGHT);\n  left = digitalRead(LEFT);\n  up = digitalRead(UP);\n  down = digitalRead(DOWN);\n\n  if((right == LOW && left == LOW)||(up == LOW && down == LOW)&& sensorValue > 720 && degreesC>37) {\n    digitalWrite(red,HIGH); delay(500);\n    digitalWrite(red,LOW); delay(500);\n    digitalWrite(red,HIGH); delay(500);\n    digitalWrite(red,LOW); delay(500);\n    Serial.println(\"Accident Detected\");\n    Serial.println(\"Sending Alert\");\n    delay(1000);\n  }\n  else if( sensorValue > 720 && degreesC>37) {\n    tone(buzzerPin, 1000, 500);\n    delay(1000);\n    digitalWrite(blue,HIGH); delay(500);\n    digitalWrite(blue,LOW); delay(500);\n    digitalWrite(blue,HIGH); delay(500);\n    digitalWrite(blue,LOW); delay(500);\n    Serial.println(\"Gas is detected And Teperature Is Increased:\");\n    delay(10000);\n  }\n  else if(degreesC>37) {\n    tone(buzzerPin, 1000, 200);\n    delay(1000);\n    digitalWrite(green,HIGH); delay(500);\n    digitalWrite(green,LOW);\n    digitalWrite(green,HIGH); delay(500);\n    digitalWrite(green,LOW); delay(500);\n    Serial.println(\"Teperature Is Increased:\");\n    delay(10000);\n  }\n  else {\n    noTone(buzzerPin);\n  }\n\n  if(digitalRead(PIRpin)==1) {\n    tone(buzzerPin, 1000, 2000);\n    delay(1000);\n    digitalWrite(ledPin,HIGH); delay(500);\n    digitalWrite(ledPin,LOW); delay(500);\n    digitalWrite(ledPin,HIGH); delay(500);\n    digitalWrite(ledPin,LOW); delay(500);\n    servo.write(90);\n    delay(5000);\n    servo.write(0);\n  }\n}"
+        },
+        {
+          "id": "tinker-12",
+          "title": "12. Room Temp Controller",
+          "problem": "To design and simulate an automatic room temperature controller system in Chemical Reactor using Arduino.",
+          "reference": "https://www.tinkercad.com/things/fndGND1saJ4-automatic-room-temperature-controller",
+          "language": "cpp",
+          "tags": ["Arduino", "Control System", "Automation"],
+          "code": "#include <LiquidCrystal.h>\nconst int temp_trans_pin = A0;\nconst int heater_pin     = 13;\nconst int fan_pin        = 6;\n\nfloat MinTemp = 20;\nfloat MaxTemp = 25;\n\nLiquidCrystal lcd(12, 11, 5, 4, 3, 2);\n\nvoid setup() {\n  lcd.begin(16, 2);\n  pinMode(heater_pin, OUTPUT);\n  pinMode(fan_pin, OUTPUT);\n\n  lcd.clear();\n  lcd.print(\"Room Temp (C):\");\n  lcd.setCursor(2, 1);\n  lcd.print(MinTemp);\n  lcd.print(\"-\");\n  lcd.print(MaxTemp);\n  delay(2000);\n}\n\nvoid loop() {\n  int raw = analogRead(temp_trans_pin);\n  float Equ_volt = raw * 5.0 / 1023.0;\n  float SensorTemp = 100.0 * Equ_volt - 50.0;\n\n  lcd.clear();\n  lcd.print(\"Sensor: \");\n  lcd.print(SensorTemp);\n  lcd.print(\" C\");\n  delay(1500);\n\n  if (SensorTemp >= MaxTemp) {\n    digitalWrite(heater_pin, LOW);\n    analogWrite(fan_pin, 255);\n    lcd.clear();\n    lcd.print(\"Temp is HIGH\");\n    lcd.setCursor(0, 1);\n    lcd.print(\"Turn ON FAN\");\n    delay(2000);\n  }\n  else if (SensorTemp <= MinTemp) {\n    analogWrite(fan_pin, 0);\n    digitalWrite(heater_pin, HIGH);\n    lcd.clear();\n    lcd.print(\"Temp is LOW\");\n    lcd.setCursor(0, 1);\n    lcd.print(\"Turn ON HEATER\");\n    delay(2000);\n  }\n  else {\n    analogWrite(fan_pin, 0);\n    digitalWrite(heater_pin, LOW);\n    lcd.clear();\n    lcd.print(\"Temp is NORMAL\");\n    lcd.setCursor(0, 1);\n    lcd.print(\"Turn OFF all\");\n    delay(2000);\n  }\n  delay(500);\n}"
+        },
+        {
+          "id": "tinker-13",
+          "title": "13. Portable ECG",
+          "problem": "To design and simulate a basic portable ECG circuit using the Tinkercad platform.",
+          "reference": "https://www.tinkercad.com/things/hbXyygH4jbr-portable-electrocardiograph-ecg",
+          "language": "cpp",
+          "tags": ["Arduino", "Biomedical", "ECG", "Simulation"],
+          "code": "#define NumPts 256\n#define minBPM 40\n#define maxBPM 120\n#define NOISE  50\n#define BPMVAR 2\n\nconst uint8_t PROGMEM ECG[] = {\n  43,43,43,44,44,46,47,48,50,52,54,55,57,59,\n  61,63,65,67,69,70,71,72,73,74,74,74,74,74,\n  73,72,71,70,69,67,65,63,61,59,57,55,54,52,\n  50,48,47,46,44,44,43,43,43,43,43,43,43,43,\n  43,43,43,43,43,43,43,43,43,43,43,43,43,43,\n  43,43,43,34,26,17,9,0,11,21,32,43,69,96,\n  122,149,175,202,228,255,228,202,175,149,\n  122,96,69,43,32,21,11,0,9,17,26,34,43,43,\n  43,43,43,43,43,43,43,43,43,43,43,43,43,43,\n  43,43,43,43,43,43,43,43,44,44,44,44,45,45,\n  45,46,46,47,48,49,49,50,51,52,54,55,56,58,\n  59,61,63,64,66,68,70,72,74,76,78,80,82,84,\n  86,88,89,91,92,93,94,95,95,96,96,96,95,95,\n  94,93,92,91,89,88,86,84,82,80,78,76,74,72,\n  70,68,66,64,63,61,59,58,56,55,54,52,51,50,\n  49,49,48,47,46,46,45,45,45,44,44,44,44,43,\n  43,43,43,43,43,43,43,43,43,43,43,43,43,43,\n  43,43,43,43,43,43,43,43,43,43,43,43,43,43,\n  43,43,43,43,43,43,43,43\n};\n\nunsigned long oneHzSample, waitTime;\nbyte i = 0;\nint fgPin = 11;\nint ratePin = A0;\nint bpm;\nint Ai0 = 0;\nint baud = 9600;\nint led = 7;\n\nvoid setup() {\n  oneHzSample = 1000000/NumPts;\n  pinMode(fgPin, OUTPUT);\n  randomSeed(analogRead(5));\n  Serial.begin(baud);\n  pinMode(led, OUTPUT);\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  bpm = map(analogRead(ratePin), 0, 1023, minBPM, maxBPM) + random(BPMVAR);\n  waitTime = oneHzSample * (60/bpm);\n  analogWrite(fgPin, pgm_read_byte_near(ECG+i) + random(50));\n  i++;\n  if(i == NumPts) i = 0;\n  delayMicroseconds(waitTime);\n  int val = analogRead(Ai0);\n  Serial.println(bpm);\n  if(bpm >= 70.0) {\n    digitalWrite(13, HIGH);\n    delay(100);\n  }\n  else {\n    digitalWrite(13, LOW);\n    delay(100);\n  }\n}"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    {
+      "title": "Tinkercad Lab Manual (Complete)",
+      "subject": "Tinkering Lab",
+      "type": "PDF",
+      "url": "TINKERCAD LAB MANUAL_CSE(DS)_13_08_25 (2).pdf"
+    },
+    {
+      "title": "Temp & Humidity Monitor Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/jCoseKCUo3i-20-dht11-temperature-and-humidity-sensor"
+    },
+    {
+      "title": "Water Level Alert System Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/9DZbcf79kT8-"
+    },
+    {
+      "title": "Automatic Plant Watering Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/2cTfQT7fAno-automated-plant-watering-system"
+    },
+    {
+      "title": "Door Lock System Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/cMDBAUzuXqA-door-lock"
+    },
+    {
+      "title": "Smart Dustbin Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/embed/kxwoGlM7BNY?editbtn=1"
+    },
+    {
+      "title": "Fire Detection System Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/2X0n2iTvhY2-fire-alarm-system"
+    },
+    {
+      "title": "Soil Moisture Irrigation Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/eKtHRRkOZoA-"
+    },
+    {
+      "title": "Smart Helmet Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/h7qvsrFRx9G-accident-prevention-and-detection"
+    },
+    {
+      "title": "Temp Controlled Reactor Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/fndGND1saJ4-automatic-room-temperature-controller"
+    },
+    {
+      "title": "ECG Signal Acquisition Simulation",
+      "subject": "Tinkering Lab",
+      "type": "Link",
+      "url": "https://www.tinkercad.com/things/hbXyygH4jbr-portable-electrocardiograph-ecg"
     }
   ]
 }
-

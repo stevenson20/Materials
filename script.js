@@ -1,37 +1,50 @@
 // ========== GLOBAL STATE ==========
 let subjects = [];
+let notes = []; // Store notes data
 let allProgramsFlat = [];
 let currentSubject = null;
 let currentProgram = null;
 
-// DOM refs
+// ========== DOM REFERENCES ==========
+
+// Layout & Sections
 const subjectGridEl = document.getElementById("subjectGrid");
 const subjectTitleEl = document.getElementById("subjectTitle");
 const subjectDescriptionEl = document.getElementById("subjectDescription");
+const subjectHeaderEl = document.getElementById("subjectHeader"); // Subject specific header
+
+// Filters & Lists
 const tagFilterEl = document.getElementById("tagFilter");
 const languageFilterEl = document.getElementById("languageFilter");
+const filtersRowEl = document.getElementById("filtersRow");
 const programListEl = document.getElementById("programList");
+const notesListEl = document.getElementById("notesList");
+const allProgramsListEl = document.getElementById("allProgramsList");
+
+// Program Detail
 const programDetailEl = document.getElementById("programDetail");
 const programDetailTitleEl = document.getElementById("programDetailTitle");
 const programDetailMetaEl = document.getElementById("programDetailMeta");
 const programDetailProblemEl = document.getElementById("programDetailProblem");
 const programCodeEl = document.getElementById("programCode");
+const programReferenceLinkEl = document.getElementById("programReferenceLink"); // Simulation link
+
+// Buttons & Inputs
 const copyCodeBtn = document.getElementById("copyCodeBtn");
 const runCodeBtn = document.getElementById("runCodeBtn");
+const backToSubjectsBtn = document.getElementById("backToSubjectsBtn");
+const backToProgramsBtn = document.getElementById("backToProgramsBtn");
+const themeToggleBtn = document.getElementById("themeToggle");
+const globalSearchInputEl = document.getElementById("globalSearchInput");
+const searchFormEl = document.getElementById("searchForm");
+
+// Output & Misc
 const runOutputEl = document.getElementById("runOutput");
 const runOutputNoteEl = document.getElementById("runOutputNote");
 const htmlRunnerEl = document.getElementById("htmlRunner");
 const toastEl = document.getElementById("toast");
 const yearEl = document.getElementById("year");
-const globalSearchInputEl = document.getElementById("globalSearchInput");
-const searchFormEl = document.getElementById("searchForm");
 const searchSummaryEl = document.getElementById("searchSummary");
-const allProgramsListEl = document.getElementById("allProgramsList");
-const notesListEl = document.getElementById("notesList");
-const themeToggleBtn = document.getElementById("themeToggle");
-const backToSubjectsBtn = document.getElementById("backToSubjectsBtn");
-const backToProgramsBtn = document.getElementById("backToProgramsBtn");
-const filtersRowEl = document.getElementById("filtersRow");
 
 // ========== UTILITIES ==========
 
@@ -122,6 +135,7 @@ function switchSection(targetId) {
 }
 
 function initNavigation() {
+  // Tab Switching
   document.querySelectorAll("[data-section-target]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = btn.getAttribute("data-section-target");
@@ -129,19 +143,23 @@ function initNavigation() {
     });
   });
 
-  // Back Button Logic
+  // 1. Back to Subjects List
   if (backToSubjectsBtn) {
     backToSubjectsBtn.addEventListener("click", () => {
       switchSection("subjects");
     });
   }
 
+  // 2. Back to Program List (from Detail)
   if (backToProgramsBtn) {
     backToProgramsBtn.addEventListener("click", () => {
-      // Go back to the list view within the subject detail
+      // HIDE Detail
       programDetailEl.classList.add("hidden");
+
+      // SHOW List & Headers
       programListEl.classList.remove("hidden");
       if (filtersRowEl) filtersRowEl.classList.remove("hidden");
+      if (subjectHeaderEl) subjectHeaderEl.classList.remove("hidden"); // Restore Subject Header
 
       // Scroll to top of section
       document
@@ -195,10 +213,13 @@ function openSubject(subjectId) {
   currentSubject = subj;
 
   switchSection("subject-detail");
+
   // Reset view to list
   programListEl.classList.remove("hidden");
   programDetailEl.classList.add("hidden");
+
   if (filtersRowEl) filtersRowEl.classList.remove("hidden");
+  if (subjectHeaderEl) subjectHeaderEl.classList.remove("hidden"); // Ensure header is visible
 
   subjectTitleEl.textContent = subj.name;
   subjectDescriptionEl.textContent = subj.short || "";
@@ -257,15 +278,28 @@ function openProgramDetail(subjectId, programId) {
   currentSubject = subj;
   currentProgram = prog;
 
-  // UI State: Hide List, Show Detail
+  // UI State: Hide List, Hide Subject Header, Show Detail
   programListEl.classList.add("hidden");
   if (filtersRowEl) filtersRowEl.classList.add("hidden");
+  if (subjectHeaderEl) subjectHeaderEl.classList.add("hidden"); // Hide Subject Header
+
   programDetailEl.classList.remove("hidden");
 
   programDetailTitleEl.textContent = prog.title;
   const langLabel = prog.language || "HTML/CSS/JS";
   programDetailMetaEl.textContent = `${subj.name} • ${langLabel}`;
   programDetailProblemEl.textContent = prog.problem || "";
+
+  // Reference Link Logic (Simulation)
+  if (programReferenceLinkEl) {
+    if (prog.reference) {
+      programReferenceLinkEl.href = prog.reference;
+      programReferenceLinkEl.classList.remove("hidden");
+    } else {
+      programReferenceLinkEl.classList.add("hidden");
+      programReferenceLinkEl.href = "#";
+    }
+  }
 
   // Combine and show code
   const combined = combineHtmlCssJs(prog);
@@ -278,10 +312,51 @@ function openProgramDetail(subjectId, programId) {
     htmlRunnerEl.srcdoc = "";
   }
 
-  // Auto-scroll to code view
+  // Auto-scroll to top
   setTimeout(() => {
-    programDetailEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, 100);
+}
+
+// ========== RENDER NOTES (NEW) ==========
+
+function renderNotes(notesData) {
+  if (!notesListEl) return;
+  notesListEl.innerHTML = "";
+
+  if (!notesData || notesData.length === 0) {
+    notesListEl.innerHTML = `
+      <p class="muted" style="grid-column: 1/-1; text-align: center;">
+        No notes available yet.
+      </p>`;
+    return;
+  }
+
+  notesData.forEach((note) => {
+    const card = document.createElement("article");
+    card.className = "card note-card";
+
+    // Icon based on type
+    const icon = note.type === "PDF" ? "📄" : "🔗";
+    const btnText = note.type === "PDF" ? "Download / View" : "Visit Link";
+
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:start;">
+        <h3>${note.title}</h3>
+        <span style="font-size:1.5rem;">${icon}</span>
+      </div>
+      <p class="card-subtitle" style="margin-bottom: 1rem;">${note.subject}</p>
+      
+      <div class="card-footer-row">
+        <span class="muted small-text">${note.type}</span>
+        <a href="${note.url}" target="_blank" class="secondary-btn small">
+          ${btnText}
+        </a>
+      </div>
+    `;
+
+    notesListEl.appendChild(card);
+  });
 }
 
 // ========== SEARCH & RUN ==========
@@ -374,18 +449,28 @@ document.addEventListener("DOMContentLoaded", () => {
       renderProgramList(currentSubject)
     );
 
+  // Fetch JSON Data
   fetch("programs.json")
     .then((res) => res.json())
     .then((data) => {
+      // 1. Load Subjects
       subjects = data.subjects || [];
       renderSubjects();
-      // Build flat list for search
+
+      // 2. Build flat list for search
       subjects.forEach((s) => {
         (s.programs || []).forEach((p) =>
           allProgramsFlat.push({ ...p, subjectId: s.id, subjectName: s.name })
         );
       });
       renderAllPrograms("");
+
+      // 3. Load Notes
+      notes = data.notes || [];
+      renderNotes(notes);
     })
-    .catch((err) => console.error(err));
+    .catch((err) => {
+      console.error("Error loading programs.json:", err);
+      showToast("Error loading data.");
+    });
 });
