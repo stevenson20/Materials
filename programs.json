@@ -200,11 +200,84 @@
       ]
     },
     {
-      "id": "cn-ip-lab",
-      "name": "Computer Networks and Internet Protocols Lab",
-      "short": "Socket programming, protocols, simulation programs.",
-      "programs": []
+  "id": "cn-ip-lab",
+  "name": "Computer Networks and Internet Protocols Lab",
+  "short": "Socket programming, protocols, simulation programs.",
+  "programs": [
+    {
+      "id": "cn-1",
+      "title": "1. Framing Methods",
+      "problem": "Implement the data link layer framing methods: character count, character stuffing, and bit stuffing.",
+      "language": "python",
+      "tags": ["Framing", "Data Link"],
+      "code": "def char_frame(d, f='|'):\n    return f+d+f\n\ndef char_unframe(x, f='|'):\n    return x[1:-1]\n\ndef char_stuff(d, flag='|', esc='\\\\'):\n    r=''\n    for c in d:\n        if c in (flag,esc):\n            r+=esc\n        r+=c\n    return flag+r+flag\n\ndef char_unstuff(x, flag='|', esc='\\\\'):\n    b=x[1:-1]; r=''; i=0\n    while i<len(b):\n        if b[i]==esc:\n            i+=1\n        r+=b[i]; i+=1\n    return r\n\ndef bit_stuff(bits, flag='01111110'):\n    r=''; c=0\n    for b in bits:\n        r+=b\n        if b=='1':\n            c+=1\n        else:\n            c=0\n        if c==5:\n            r+='0'; c=0\n    return flag+r+flag\n\ndef bit_unstuff(f, flag='01111110'):\n    b=f[len(flag):-len(flag)]; r=''; c=0; i=0\n    while i<len(b):\n        r+=b[i]\n        if b[i]=='1':\n            c+=1\n        else:\n            c=0\n        if c==5:\n            i+=1; c=0\n        i+=1\n    return r\n\nprint('1.Character Count 2.Character Stuffing 3.Bit Stuffing')\nch = int(input('Enter Choice: '))\nd = input('Enter Data: ')\n\nif ch == 1:\n    f = char_frame(d)\n    print(f'Framed: {f}')\n    print(f'Unframed: {char_unframe(f)}')\nelif ch == 2:\n    s = char_stuff(d)\n    print(f'Stuffed: {s}')\n    print(f'Unstuffed: {char_unstuff(s)}')\nelif ch == 3:\n    b = bit_stuff(d)\n    print(f'Stuffed: {b}')\n    print(f'Unstuffed: {bit_unstuff(b)}')"
     },
+    {
+      "id": "cn-2",
+      "title": "2. CRC Computation",
+      "problem": "Write a program to compute CRC code for CRC-12, CRC-16 and CRC-CCITT.",
+      "language": "python",
+      "tags": ["CRC", "Error Detection"],
+      "code": "def exps_to_polybits(exps):\n    m = max(exps)\n    bits = ['0'] * (m + 1)\n    for e in exps:\n        bits[m - e] = '1'\n    return ''.join(bits)\n\ndef xor_divide(data, poly):\n    n = len(poly)\n    reg = list(data + '0'*(n-1))\n    for i in range(len(data)):\n        if reg[i] == '1':\n            for j in range(n):\n                reg[i+j] = '1' if reg[i+j] != poly[j] else '0'\n    return ''.join(reg[-(n-1):]) if n>1 else ''\n\nPRESETS = {\n    '1': ('CRC-12', exps_to_polybits([12,11,3,2,1,0])),\n    '2': ('CRC-16', exps_to_polybits([16,15,2,0])),\n    '3': ('CRC-CCITT', exps_to_polybits([16,12,5,0]))\n}\n\ndef to_bitstring_from_ascii(s):\n    return ''.join(f\"{b:08b}\" for b in s.encode())\n\ndef main():\n    print(\"1) CRC-12  2) CRC-16  3) CRC-CCITT  4) Custom polynomial\")\n    choice = input(\"Choose (1-4): \").strip()\n    if choice in PRESETS:\n        name, poly = PRESETS[choice]\n    else:\n        p = input(\"Enter custom polynomial as exponents: \")\n        exps = [int(x) for x in p.replace(',', ' ').split()]\n        poly = exps_to_polybits(exps)\n        name = \"CUSTOM\"\n    inp_type = input(\"Input type: 1) ASCII  2) Bitstring choose (1/2): \").strip()\n    if inp_type == '1':\n        s = input(\"Enter ASCII message: \")\n        data = to_bitstring_from_ascii(s)\n    else:\n        data = input(\"Enter bitstring: \").strip()\n    rem = xor_divide(data, poly)\n    codeword = data + rem\n    print(f\"Polynomial ({name}): {poly}\")\n    print(f\"Remainder (bin): {rem or '0'}\")\n    print(f\"Codeword: {codeword}\")\n\nif __name__ == \"__main__\":\n    main()"
+    },
+    {
+      "id": "cn-3",
+      "title": "3. Sliding Window (Go-Back-N)",
+      "problem": "Implement flow control using the sliding window protocol (Go-Back-N).",
+      "language": "python",
+      "tags": ["Flow Control", "Sliding Window"],
+      "code": "import random, time\n\nTOTAL = int(input(\"Enter total frames to send: \"))\nN = int(input(\"Enter window size: \"))\nbase = 0\nnextseq = 0\ntimer = None\ntimeout = 1.0\n\ndef send(s):\n    print(\"SEND\", s)\n\ndef simulate_ack(sent_seq):\n    return random.random() > 0.2\n\nwhile base < TOTAL:\n    while nextseq < base + N and nextseq < TOTAL:\n        send(nextseq)\n        nextseq += 1\n        if timer is None:\n            timer = time.time()\n    time.sleep(0.1)\n    for s in range(base, nextseq):\n        if simulate_ack(s):\n            print(\"ACK\", s)\n            if s == base:\n                base += 1\n                while base < nextseq and simulate_ack(base):\n                    print(\"ACK\", base)\n                    base += 1\n    if timer and time.time() - timer > timeout:\n        print(\"TIMEOUT -> retransmit from\", base)\n        nextseq = base\n        timer = None\nprint(\"All sent and acknowledged\")"
+    },
+    {
+      "id": "cn-4",
+      "title": "4. Dijkstra’s Algorithm",
+      "problem": "Implement Dijkstra’s algorithm to compute the shortest path through a network.",
+      "language": "python",
+      "tags": ["Routing", "Dijkstra"],
+      "code": "import heapq\n\ndef build():\n    n = int(input(\"Number of nodes: \"))\n    nodes = input(\"Node names (space-separated): \").split()\n    m = int(input(\"Number of edges: \"))\n    g = {x: [] for x in nodes}\n    for _ in range(m):\n        a,b,w = input(\"edge (u v weight): \").split()\n        g[a].append((b,int(w)))\n        g[b].append((a,int(w)))\n    return nodes, g\n\ndef dijkstra(nodes, g, src):\n    dist = {n: float('inf') for n in nodes}\n    prev = {n: None for n in nodes}\n    dist[src] = 0\n    pq = [(0, src)]\n    while pq:\n        d,u = heapq.heappop(pq)\n        if d>dist[u]: continue\n        for v,w in g[u]:\n            nd = d + w\n            if nd < dist[v]:\n                dist[v] = nd\n                prev[v] = u\n                heapq.heappush(pq, (nd, v))\n    return dist, prev\n\ndef path(prev, dest):\n    if prev[dest] is None:\n        return [dest]\n    p = []\n    cur = dest\n    while cur is not None:\n        p.append(cur)\n        cur = prev[cur]\n    return p[::-1]\n\nif __name__ == \"__main__\":\n    nodes, g = build()\n    src = input(\"Source node: \")\n    dist, prev = dijkstra(nodes, g, src)\n    print(\"Node\\tDistance\\tPath\")\n    for n in sorted(nodes):\n        d = dist[n]\n        dstr = str(d) if d<float('inf') else \"INF\"\n        p = path(prev, n) if d<float('inf') else [\"-\"]\n        print(f\"{n}\\t\\t{dstr}\\t\\t\\t{'->'.join(p)}\")"
+    },
+    {
+      "id": "cn-5",
+      "title": "5. Broadcast Tree",
+      "problem": "Obtain a broadcast tree for a subnet of hosts.",
+      "language": "python",
+      "tags": ["Subnet", "Broadcast"],
+      "code": "from collections import deque, defaultdict\n\ndef build_graph():\n    n = int(input(\"Number of nodes: \"))\n    nodes = input(\"Nodes (space-separated): \").split()\n    m = int(input(\"Number of links: \"))\n    g = defaultdict(list)\n    for _ in range(m):\n        a,b = input(\"link (u v): \").split()\n        g[a].append(b); g[b].append(a)\n    root = input(\"Choose root for broadcast tree: \")\n    return nodes, g, root\n\ndef bfs_tree(nodes, g, root):\n    parent = {root: None}\n    level = {root:0}\n    q = deque([root])\n    while q:\n        u = q.popleft()\n        for v in sorted(g[u]):\n            if v not in parent:\n                parent[v] = u\n                level[v] = level[u]+1\n                q.append(v)\n    return parent, level\n\nif __name__ == \"__main__\":\n    nodes, g, root = build_graph()\n    parent, level = bfs_tree(nodes, g, root)\n    print(\"Broadcast tree edges (parent -> child):\")\n    for node in sorted(nodes):\n        if node==root: continue\n        p = parent.get(node)\n        if p is None:\n            print(f\"{node} is unreachable from {root}\")\n        else:\n            print(f\"{p} -> {node} (level {level[node]})\")"
+    },
+    {
+      "id": "cn-6",
+      "title": "6. Distance Vector Routing",
+      "problem": "Implement distance vector routing algorithm for obtaining routing tables.",
+      "language": "python",
+      "tags": ["Routing", "DVR"],
+      "code": "INF = 10**9\n\ndef build_graph():\n    n = int(input(\"Number of nodes: \"))\n    nodes = input(\"Enter node names: \").split()\n    m = int(input(\"Number of edges: \"))\n    g = {x: {} for x in nodes}\n    for _ in range(m):\n        a,b,w = input(\"edge (u v weight): \").split()\n        w = int(w)\n        g[a][b] = w\n        g[b][a] = w\n    return nodes, g\n\ndef init(nodes, g):\n    t = {}\n    for u in nodes:\n        t[u] = {}\n        for v in nodes:\n            if u==v: t[u][v] = (0,u)\n            elif v in g[u]: t[u][v] = (g[u][v], v)\n            else: t[u][v] = (INF, None)\n    return t\n\ndef step(nodes, g, tables):\n    changed = False\n    msgs = []\n    for u in nodes:\n        dv = {d:tables[u][d][0] for d in tables[u]}\n        for nbr in g[u]:\n            msgs.append((nbr,u,dv))\n    for to, frm, dv in msgs:\n        cost = g[to].get(frm, INF)\n        if cost>=INF: continue\n        for dest,cost_if in dv.items():\n            if cost_if>=INF: continue\n            nc = cost + cost_if\n            cur, nxt = tables[to][dest]\n            if nc < cur:\n                tables[to][dest] = (nc, frm)\n                changed = True\n    return changed\n\ndef print_tables(nodes, tables):\n    for n in nodes:\n        print(f\"Router {n}\")\n        print(\"Dest\\tCost\\tNext\")\n        for d in sorted(nodes):\n            c, nxt = tables[n][d]\n            print(f\"{d}\\t{(c if c<INF else 'INF')}\\t{(nxt if nxt else '-')}\")\n        print()\n\nif __name__ == \"__main__\":\n    nodes, g = build_graph()\n    tables = init(nodes, g)\n    round = 0\n    while True:\n        round += 1\n        if not step(nodes, g, tables):\n            break\n    print_tables(nodes, tables)"
+    },
+    {
+      "id": "cn-7",
+      "title": "7. Data Encryption",
+      "problem": "Implement data encryption and decryption (Caesar Cipher).",
+      "language": "python",
+      "tags": ["Security", "Encryption"],
+      "code": "def encrypt_caesar(plaintext, shift):\n    result = []\n    for ch in plaintext:\n        if 'a' <= ch <= 'z':\n            result.append(chr((ord(ch) - ord('a') + shift) % 26 + ord('a')))\n        elif 'A' <= ch <= 'Z':\n            result.append(chr((ord(ch) - ord('A') + shift) % 26 + ord('A')))\n        else:\n            result.append(ch)\n    return ''.join(result)\n\ndef decrypt_caesar(ciphertext, shift):\n    return encrypt_caesar(ciphertext, -shift)\n\nif __name__ == \"__main__\":\n    text = input(\"Enter text: \")\n    k = int(input(\"Enter shift: \"))\n    enc = encrypt_caesar(text, k)\n    dec = decrypt_caesar(enc, k)\n    print(\"Encrypted:\", enc)\n    print(\"Decrypted:\", dec)"
+    },
+    {
+      "id": "cn-8",
+      "title": "8. Leaky Bucket",
+      "problem": "Write a program for congestion control using Leaky bucket algorithm.",
+      "language": "python",
+      "tags": ["Congestion Control", "Leaky Bucket"],
+      "code": "bucket_size = int(input(\"Enter bucket size: \"))\nleak_rate = int(input(\"Enter leak rate: \"))\nn = int(input(\"Enter number of time slots: \"))\nbucket = 0\nprint(\"Time | Arrived | Sent | Dropped | Bucket\")\nfor time in range(1, n + 1):\n    packets = int(input(f\"Packets at time {time}: \"))\n    bucket += packets\n    dropped = 0\n    if bucket > bucket_size:\n        dropped = bucket - bucket_size\n        bucket = bucket_size\n    sent = min(bucket, leak_rate)\n    bucket -= sent\n    print(f\"{time:4} | {packets:7} | {sent:4} | {dropped:7} | {bucket}\")"
+    },
+    {
+      "id": "cn-9",
+      "title": "9. Frame Sorting",
+      "problem": "Write a program for frame sorting technique used in buffers.",
+      "language": "python",
+      "tags": ["Buffering", "Sorting"],
+      "code": "n = int(input(\"Enter number of frames: \"))\nframes = []\nprint(\"Enter frame numbers in order:\")\nfor i in range(n):\n    f = int(input(f\"Frame {i+1}: \"))\n    frames.append(f)\nprint(\"Received:\", frames)\nsorted_frames = sorted(frames)\nprint(\"Sorted:\", sorted_frames)"
+    }
+  ]
+},
     {
       "id": "tinkering-lab",
       "name": "Tinkering Lab",
@@ -372,3 +445,4 @@
     }
   ]
 }
+
